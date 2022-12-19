@@ -8,8 +8,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
     public MigrateCustomObjectBatch(MigrateCustomObjectService service) {
         this.service = service;
         String entryPoint = 'Process migrate Custom Objects. Custom Object Name: ' +
-            service.getCustomObjectName() + ', Big Object Name: ' + service.getBigObjectName() +
-            ', Type: ' + service.getObjectType();
+            service.getSObjectName() + ', Big Object Name: ' + service.getBigObjectName();
         this.logger = new MigrateCustomObjectLogger(entryPoint);
     }
 
@@ -23,7 +22,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
         try {
             String messageBeforeProcess = String.format(
                 'Processing "{0}" Object "{1}".',
-                new List<Object> { scope.size(), this.service.getCustomObjectName() }
+                new List<Object> { scope.size(), this.service.getSObjectName() }
             );
             this.logger.log(messageBeforeProcess);
             List<SObject> bigObjects = this.service.processMigrate(scope);
