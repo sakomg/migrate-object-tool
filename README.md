@@ -1,6 +1,4 @@
-# Salesforce DX Project: Next Steps
-
-Migrate Object Tool
+# Migrate Object Tool
 
 ### TODO
 
