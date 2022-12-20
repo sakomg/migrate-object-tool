@@ -1,4 +1,4 @@
-public with sharing class Models {
+public without sharing class Models {
 
     public class PickListOption implements Comparable {
         private String label;

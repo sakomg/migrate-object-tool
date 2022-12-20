@@ -1,4 +1,4 @@
-public with sharing class MigrateCustomObjectController {
+public without sharing class MigrateCustomObjectController {
 
     @AuraEnabled
     public static void processMigrate(String sObjectName, String bigObjectName, Map<String, String> fieldMapping) {

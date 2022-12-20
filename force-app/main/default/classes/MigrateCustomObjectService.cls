@@ -3,11 +3,13 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
     private final String sObjectName;
     private final String bigObjectName;
     private final Map<String, String> fieldMapping;
+    private final Map<String, Schema.SObjectField> fieldsDescibe;
 
     public MigrateCustomObjectService(String sObjectName, String bigObjectName, Map<String, String> fieldMapping) {
         this.sObjectName = sObjectName;
         this.bigObjectName = bigObjectName;
         this.fieldMapping = fieldMapping;
+        this.fieldsDescibe = Utils.getFieldsBySObjectName(sObjectName);
     }
 
     public String getSObjectName() {
@@ -23,7 +25,7 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
     }
 
     public String generateQuery(Integer additionalMonths) {
-        Set<String> fields = this.getFieldsBySObjectName(this.sObjectName).keySet();
+        Set<String> fields = this.fieldsDescibe.keySet();
         String query = 'SELECT ' + String.join(new List<String>(fields), ', ') +
             ' FROM ' + this.sObjectName +
             ' WHERE CreatedDate < LAST_N_MONTHS:' + String.valueOf(additionalMonths);
@@ -33,7 +35,7 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
 
     public List<SObject> processMigrate(List<SObject> customObjectRecords) {
         List<SObject> result = new List<SObject>();
-        List<Schema.SObjectField> infoFields = this.getFieldsBySObjectName(this.sObjectName).values();
+        List<Schema.SObjectField> infoFields = this.fieldsDescibe.values();
 
         for (SObject record : customObjectRecords) {
             SObject recordBO = Schema.getGlobalDescribe().get(this.bigObjectName).newSObject();
@@ -57,13 +59,5 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
                 recordBO.put(this.fieldMapping.get(field), value);
             }
         }
-    }
-
-    public Map<String, Schema.SObjectField> getFieldsBySObjectName(String sObjectName) {
-        Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe(); 
-        Schema.SObjectType sobjType = globalDescribe.get(sObjectName); 
-        Schema.DescribeSObjectResult describeResult = sobjType.getDescribe(); 
-        Map<String, Schema.SObjectField> fieldsMap = describeResult.fields.getMap();
-        return fieldsMap;
     }
 }

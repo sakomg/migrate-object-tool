@@ -1,5 +1,5 @@
 <template>
-  <lightning-card>
+  <lightning-card title="">
     <div if:true={loading}>
       <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
       <div class="slds-illustration slds-illustration_small" aria-hidden="true">
@@ -8,24 +8,61 @@
     </div>
 
     <div if:false={loading}>
-      <div class="slds-m-horizontal_medium">
-        <lightning-combobox
-          name="sObject"
-          label="Custom/Standard Object"
-          value=""
-          placeholder="Choose sObject"
-          options={sObjectNameOptions}
-          onchange={handleSObjectChange}>
-        </lightning-combobox>
-
-        <lightning-combobox
-          name="bObject"
-          label="Big Object"
-          value=""
-          placeholder="Choose Big Object"
-          options={bigObjectNameOptions}
-          onchange={handleBigObjectChange}>
-        </lightning-combobox>
+      <div class="slds-page-header">
+        <div class="slds-page-header__row">
+          <div class="slds-page-header__col-title">
+            <div class="slds-media">
+              <div class="slds-no-flex slds-align_absolute-center">
+                <lightning-button
+                  label="Run Immediately" 
+                  variant="neutral" 
+                  onclick={handleAddClick} 
+                  icon-name="standard:activations" 
+                  alternative-text="Run Immediately"
+                  title="Run Immediately" 
+                  icon-position="right" 
+                  class="slds-m-left_medium">
+                </lightning-button>
+                <lightning-button
+                  label="Schedule" 
+                  variant="brand" 
+                  onclick={handleAddClick} 
+                  icon-name="standard:schedule_objective" 
+                  alternative-text="Schedule"
+                  title="Schedule" 
+                  icon-position="right" 
+                  class="slds-m-left_medium">
+                </lightning-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slds-grid slds-wrap">
+        <div class="slds-size_1-of-2">
+          <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
+            <lightning-combobox
+              name="sObject"
+              label="Custom/Standard Object"
+              value=""
+              placeholder="Choose sObject"
+              options={sObjectNameOptions}
+              onchange={handleSObjectChange}>
+            </lightning-combobox>
+          </div>
+        </div>
+        <div class="slds-size_1-of-2">
+          <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
+            <lightning-combobox
+              name="bObject"
+              label="Big Object"
+              value=""
+              placeholder="Choose Big Object"
+              options={bigObjectNameOptions}
+              onchange={handleBigObjectChange}>
+            </lightning-combobox>
+          </div>
+        </div>
       </div>
     </div>
   </lightning-card>
