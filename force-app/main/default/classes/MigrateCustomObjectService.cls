@@ -3,9 +3,6 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
     private final String sObjectName;
     private final String bigObjectName;
     private final Map<String, String> fieldMapping;
-    private static final List<String> MISSING_BO_TYPES = new List<String> {
-        'BOOLEAN', 'ADDRESS', 'DATE'
-    };
 
     public MigrateCustomObjectService(String sObjectName, String bigObjectName, Map<String, String> fieldMapping) {
         this.sObjectName = sObjectName;
@@ -19,6 +16,10 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
 
     public String getBigObjectName() {
         return this.bigObjectName;
+    }
+
+    public Map<String, String> getFieldMapping() {
+        return this.fieldMapping;
     }
 
     public String generateQuery(Integer additionalMonths) {
@@ -50,7 +51,7 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
         String field = describeField.getName();
         Object value = record.get(field);
         if (this.fieldMapping.containsKey(field)) {
-            if (MISSING_BO_TYPES.contains(describeField.getType().name().toUpperCase())) {
+            if (Constants.MISSING_BO_TYPES.contains(describeField.getType().name().toUpperCase())) {
                 recordBO.put(this.fieldMapping.get(field), String.valueOf(value));
             } else {
                 recordBO.put(this.fieldMapping.get(field), value);

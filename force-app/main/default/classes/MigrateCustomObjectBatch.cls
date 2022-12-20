@@ -21,8 +21,8 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
     public void execute(Database.BatchableContext context, List<SObject> scope) {
         try {
             String messageBeforeProcess = String.format(
-                'Processing "{0}" Object "{1}".',
-                new List<Object> { scope.size(), this.service.getSObjectName() }
+                'Processing "{0}" Object "{1}" Mapping: "{2}".',
+                new List<Object> { scope.size(), this.service.getSObjectName(), this.service.getFieldMapping() }
             );
             this.logger.log(messageBeforeProcess);
             List<SObject> bigObjects = this.service.processMigrate(scope);

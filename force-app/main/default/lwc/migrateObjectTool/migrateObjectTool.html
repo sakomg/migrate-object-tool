@@ -1,0 +1,32 @@
+<template>
+  <lightning-card>
+    <div if:true={loading}>
+      <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+      <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+        <img src="/img/chatter/Desert.svg" class="slds-illustration__svg slds-p-top_small" alt="Desert"/>
+      </div>
+    </div>
+
+    <div if:false={loading}>
+      <div class="slds-m-horizontal_medium">
+        <lightning-combobox
+          name="sObject"
+          label="Custom/Standard Object"
+          value=""
+          placeholder="Choose sObject"
+          options={sObjectNameOptions}
+          onchange={handleSObjectChange}>
+        </lightning-combobox>
+
+        <lightning-combobox
+          name="bObject"
+          label="Big Object"
+          value=""
+          placeholder="Choose Big Object"
+          options={bigObjectNameOptions}
+          onchange={handleBigObjectChange}>
+        </lightning-combobox>
+      </div>
+    </div>
+  </lightning-card>
+</template>
