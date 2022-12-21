@@ -1,4 +1,4 @@
 public interface MigrateCustomObject {
-    String generateQuery(Integer additionalMonths);
-    List<SObject> processMigrate(List<SObject> customObjectRecords);
+  String generateQuery(Integer additionalMonths);
+  List<SObject> processMigrate(List<SObject> customObjectRecords);
 }

@@ -1,44 +1,44 @@
 <template>
-  <lightning-card title="">
-    <div if:true={loading}>
-      <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
-      <div class="slds-illustration slds-illustration_small" aria-hidden="true">
-        <img src="/img/chatter/Desert.svg" class="slds-illustration__svg slds-p-top_small" alt="Desert"/>
-      </div>
-    </div>
-
-    <div if:false={loading}>
-      <div class="slds-page-header">
-        <div class="slds-page-header__row">
-          <div class="slds-page-header__col-title">
-            <div class="slds-media">
-              <div class="slds-no-flex slds-align_absolute-center">
-                <lightning-button
-                  label="Run Immediately" 
-                  variant="neutral" 
-                  onclick={handleAddClick} 
-                  icon-name="standard:activations" 
-                  alternative-text="Run Immediately"
-                  title="Run Immediately" 
-                  icon-position="right" 
-                  class="slds-m-left_medium">
-                </lightning-button>
-                <lightning-button
-                  label="Schedule" 
-                  variant="brand" 
-                  onclick={handleAddClick} 
-                  icon-name="standard:schedule_objective" 
-                  alternative-text="Schedule"
-                  title="Schedule" 
-                  icon-position="right" 
-                  class="slds-m-left_medium">
-                </lightning-button>
-              </div>
-            </div>
+  <div class="slds-page-header">
+    <div class="slds-page-header__row">
+      <div class="slds-page-header__col-title">
+        <div class="slds-no-flex">
+          <div class="slds-float_right">
+            <lightning-button
+              label="Run Immediately"
+              variant="neutral"
+              onclick={handleAddClick}
+              icon-name="standard:activations"
+              alternative-text="Run Immediately"
+              title="Run Immediately"
+              icon-position="right"
+              class=""
+            >
+            </lightning-button>
+            <lightning-button
+              label="Schedule"
+              variant="brand"
+              onclick={handleAddClick}
+              icon-name="standard:schedule_objective"
+              alternative-text="Schedule"
+              title="Schedule"
+              icon-position="right"
+              class="slds-m-left_medium"
+            >
+            </lightning-button>
           </div>
         </div>
       </div>
-      <div class="slds-grid slds-wrap">
+    </div>
+  </div>
+  <div class="container">
+    <div if:true={loading} class="loading-container">
+      <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+      <img src="/img/chatter/Desert.svg" class="illustration-onloading" alt="Desert" />
+    </div>
+
+    <div if:false={loading}>
+      <div class="slds-grid slds-wrap slds-p-top_xx-large">
         <div class="slds-size_1-of-2">
           <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
             <lightning-combobox
@@ -47,7 +47,8 @@
               value=""
               placeholder="Choose sObject"
               options={sObjectNameOptions}
-              onchange={handleSObjectChange}>
+              onchange={handleSObjectChange}
+            >
             </lightning-combobox>
           </div>
         </div>
@@ -59,11 +60,12 @@
               value=""
               placeholder="Choose Big Object"
               options={bigObjectNameOptions}
-              onchange={handleBigObjectChange}>
+              onchange={handleBigObjectChange}
+            >
             </lightning-combobox>
           </div>
         </div>
       </div>
     </div>
-  </lightning-card>
+  </div>
 </template>
