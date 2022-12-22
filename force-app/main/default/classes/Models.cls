@@ -19,4 +19,16 @@ public without sharing class Models {
       return -1;
     }
   }
+
+  public class FieldDefinition {
+    private String value;
+    private String type;
+    private Integer length;
+
+    public FieldDefinition(Schema.DescribeFieldResult describe) {
+      this.value = describe.getName();
+      this.type = describe.getType().name();
+      this.length = describe.getLength();
+    }
+  }
 }

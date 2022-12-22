@@ -1,36 +1,4 @@
 <template>
-  <div class="slds-page-header">
-    <div class="slds-page-header__row">
-      <div class="slds-page-header__col-title">
-        <div class="slds-no-flex">
-          <div class="slds-float_right">
-            <lightning-button
-              label="Run Immediately"
-              variant="neutral"
-              onclick={handleAddClick}
-              icon-name="standard:activations"
-              alternative-text="Run Immediately"
-              title="Run Immediately"
-              icon-position="right"
-              class=""
-            >
-            </lightning-button>
-            <lightning-button
-              label="Schedule"
-              variant="brand"
-              onclick={handleAddClick}
-              icon-name="standard:schedule_objective"
-              alternative-text="Schedule"
-              title="Schedule"
-              icon-position="right"
-              class="slds-m-left_medium"
-            >
-            </lightning-button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   <div class="container">
     <div if:true={loading} class="loading-container">
       <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
@@ -38,7 +6,39 @@
     </div>
 
     <div if:false={loading}>
-      <div class="slds-grid slds-wrap slds-p-top_xx-large">
+      <div class="slds-page-header">
+        <div class="slds-page-header__row">
+          <div class="slds-page-header__col-title">
+            <div class="slds-media">
+              <div class="slds-no-flex slds-align_absolute-center">
+                <lightning-button
+                  label="Run Immediately"
+                  variant="neutral"
+                  onclick={handleAddClick}
+                  icon-name="standard:activations"
+                  alternative-text="Run Immediately"
+                  title="Run Immediately"
+                  icon-position="right"
+                  class="slds-m-left_medium"
+                >
+                </lightning-button>
+                <lightning-button
+                  label="Schedule"
+                  variant="brand"
+                  onclick={handleAddClick}
+                  icon-name="standard:schedule_objective"
+                  alternative-text="Schedule"
+                  title="Schedule"
+                  icon-position="right"
+                  class="slds-m-left_medium"
+                >
+                </lightning-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slds-grid slds-wrap">
         <div class="slds-size_1-of-2">
           <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
             <lightning-combobox
@@ -65,6 +65,36 @@
             </lightning-combobox>
           </div>
         </div>
+      </div>
+
+      <div class="field-pair-container">
+        <template for:each={fieldPairs} for:item="pair">
+          <div key={pair.index} class="field-pair">
+            <lightning-combobox
+              name="sObject"
+              label="Custom/Standard Object field"
+              value={pair.soField}
+              placeholder="Choose a field"
+              options={soFieldOptions}
+              onchange={handleObjectFieldChange}
+              data-pair-index={pair.index}
+              data-property="soField"
+            >
+            </lightning-combobox>
+
+            <lightning-combobox
+              name="bObject"
+              label="Big Object field"
+              value={pair.boField}
+              placeholder="Choose a field"
+              options={boFieldOptions}
+              onchange={handleObjectFieldChange}
+              data-pair-index={pair.index}
+              data-property="boField"
+            >
+            </lightning-combobox>
+          </div>
+        </template>
       </div>
     </div>
   </div>

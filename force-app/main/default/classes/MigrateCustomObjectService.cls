@@ -8,7 +8,7 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
     this.sObjectName = sObjectName;
     this.bigObjectName = bigObjectName;
     this.fieldMapping = fieldMapping;
-    this.fieldsDescibe = Utils.getFieldsBySObjectName(sObjectName);
+    this.fieldsDescibe = Utils.getFieldsByObjectName(sObjectName);
   }
 
   public String getSObjectName() {

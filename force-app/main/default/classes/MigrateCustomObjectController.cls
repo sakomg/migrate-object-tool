@@ -38,32 +38,31 @@ public without sharing class MigrateCustomObjectController {
   }
 
   @AuraEnabled
-  public static String getSObjectsNames() {
-    List<Models.PickListOption> pickListOptions = new List<Models.PickListOption>();
+  public static String getFieldDefinitionsByObjectName(String objectName) {
+    List<Models.FieldDefinition> result = new List<Models.FieldDefinition>();
+    Map<String, Schema.SObjectField> rawFields = Utils.getFieldsByObjectName(objectName);
 
-    for (Schema.SObjectType objTyp : Schema.getGlobalDescribe().values()) {
-      Schema.DescribeSObjectResult objDescription = objTyp.getDescribe();
-
-      if (isAvailableSObject(objDescription)) {
-        pickListOptions.add(new Models.PickListOption(objDescription.getLabel(), objDescription.getName()));
-      }
+    for (Schema.SObjectField rawField : rawFields.values()) {
+      result.add(new Models.FieldDefinition(rawField.getDescribe()));
     }
 
-    return JSON.serialize(pickListOptions);
+    return JSON.serialize(result);
   }
 
-  private static Boolean isAvailableSObject(Schema.DescribeSObjectResult objDescription) {
-    Boolean result = objDescription.isDeletable() && !objDescription.isCustomSetting();
-    String name = objDescription.getName();
+  @AuraEnabled
+  public static String getFieldsByObjectName(String objectName) {
+    List<Models.PickListOption> result = new List<Models.PickListOption>();
+    Map<String, Schema.SObjectField> rawFields = Utils.getFieldsByObjectName(objectName);
 
-    if (objDescription.isCustom()) {
-      result = result && name.endsWithIgnoreCase('__c');
-    } else {
-      for (String nameEnd : Constants.UNAVAILABLE_STANDARD_SOBJECTS_ENDS) {
-        result = result && !name.endsWithIgnoreCase(nameEnd);
-      }
+    for (Schema.SObjectField rawField : rawFields.values()) {
+      Schema.DescribeFieldResult describe = rawField.getDescribe();
+      String label = describe.getLabel();
+      String value = describe.getName();
+      result.add(new Models.PickListOption(label, value));
     }
 
-    return result;
+    result.sort();
+
+    return JSON.serialize(result);
   }
 }
