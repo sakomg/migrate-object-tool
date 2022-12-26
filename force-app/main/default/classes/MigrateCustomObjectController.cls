@@ -58,7 +58,9 @@ public without sharing class MigrateCustomObjectController {
       Schema.DescribeFieldResult describe = rawField.getDescribe();
       String label = describe.getLabel();
       String value = describe.getName();
-      result.add(new Models.PickListOption(label, value));
+      if (Utils.isValidField(describe)) {
+        result.add(new Models.PickListOption(label, value));
+      }
     }
 
     result.sort();
