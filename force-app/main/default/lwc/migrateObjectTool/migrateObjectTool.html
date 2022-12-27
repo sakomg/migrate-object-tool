@@ -1,12 +1,12 @@
 <template>
   <div class="container">
-    <div if:true={loading} class="loading-container">
+    <div if:true={loading}>
       <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
       <img src="/img/chatter/Desert.svg" class="illustration-onloading" alt="Desert" />
     </div>
 
     <div if:false={loading}>
-      <div class="slds-page-header">
+      <!-- <div class="slds-page-header">
         <div class="slds-page-header__row">
           <div class="slds-page-header__col-title">
             <div class="slds-media">
@@ -37,65 +37,124 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="slds-grid slds-wrap">
-        <div class="slds-size_1-of-2">
-          <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
+      </div> -->
+
+      <div id="step-1">
+        <div>
+          <h2>Step 1</h2>
+          <p>Choose objects to transfer data.</p>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
             <lightning-combobox
               name="sObject"
-              label="Custom/Standard Object"
+              label="From Object"
               value=""
               placeholder="Choose sObject"
               options={sObjectNameOptions}
               onchange={handleSObjectChange}
             >
             </lightning-combobox>
-          </div>
-        </div>
-        <div class="slds-size_1-of-2">
-          <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
             <lightning-combobox
               name="bObject"
-              label="Big Object"
+              label="To Object"
               value=""
               placeholder="Choose Big Object"
               options={bigObjectNameOptions}
               onchange={handleBigObjectChange}
             >
             </lightning-combobox>
+            <div class="delete-icon"></div>
           </div>
         </div>
       </div>
 
-      <div class="field-pair-container">
-        <template for:each={fieldPairs} for:item="pair">
-          <div key={pair.index} class="field-pair">
-            <lightning-combobox
-              name="sObject"
-              label="Custom/Standard Object field"
-              value={pair.soField}
-              placeholder="Choose a field"
-              options={soFieldOptions}
-              onchange={handleObjectFieldChange}
-              data-pair-index={pair.index}
-              data-property="soField"
-            >
-            </lightning-combobox>
+      <hr />
 
-            <lightning-combobox
-              name="bObject"
-              label="Big Object field"
-              value={pair.boField}
-              placeholder="Choose a field"
-              options={boFieldOptions}
-              onchange={handleObjectFieldChange}
-              data-pair-index={pair.index}
-              data-property="boField"
-            >
-            </lightning-combobox>
+      <div id="step-2">
+        <div>
+          <h2>Step 2</h2>
+          <p>Choose fields to transfer data.</p>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
+            <p>From Field</p>
+            <p>To Field</p>
+            <div class="delete-icon"></div>
           </div>
-        </template>
+
+          <template for:each={fieldPairs} for:item="pair" for:index="idx">
+            <div
+              draggable="true"
+              class="drag"
+              key={pair.index}
+              ondragstart={drag.start}
+              ondragover={drag.over}
+              ondragend={handleDragEnd}
+              data-index={idx}
+            >
+              <c-migrate-object-tool-field-pair
+                pair={pair}
+                so-field-options={soFieldOptions}
+                bo-field-options={boFieldOptions}
+                onfieldchange={handleObjectFieldChange}
+                ondeletepair={handleDeleteIconClick}
+              ></c-migrate-object-tool-field-pair>
+            </div>
+          </template>
+        </div>
       </div>
+
+      <hr />
+
+      <div id="step-3">
+        <div>
+          <h2>Step 3</h2>
+          <p>Conditions to fetch Custom Object records.</p>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
+            <div class="condition-container">
+              <lightning-textarea
+                label="Salesforce Object Query Language (SOQL)"
+                onchange={handleInputUserQuery}
+                value={conditionQueryValue}
+                placeholder="Enter query"
+              ></lightning-textarea>
+              <div class={styleAfterQuery}>{messageAfterQuery}</div>
+            </div>
+            <div class="delete-icon"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <div id="step-4">
+        <div>
+          <h2>Step 4</h2>
+          <p>Executing migration process.</p>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
+            // TODO
+            <div class="delete-icon"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <c-migrate-object-tool-pick-list
+        name="sObject"
+        label="From Object"
+        value=""
+        placeholder="Choose sObject"
+        options={sObjectNameOptions}
+        onchange={handleOnchange}
+      ></c-migrate-object-tool-pick-list> -->
     </div>
   </div>
 </template>

@@ -1,0 +1,77 @@
+<template>
+  <div class="slds-form-element" onmouseleave={closePickListOptions}>
+    <label class={labelClassList} for="combobox-id-59">{label}</label>
+    <div class="slds-form-element__control">
+      <div class="slds-combobox_container">
+        <div class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" onclick={handlePickListClick}>
+          <div
+            class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+            role="none"
+            onkeydown={handleKeyDown}
+          >
+            <button
+              type="button"
+              class="slds-input_faux slds-combobox__input"
+              aria-labelledby="combobox-label-id-132 combobox-id-59"
+              id="combobox-id-59"
+              aria-controls="listbox-id-1"
+              aria-expanded="false"
+              aria-haspopup="listbox"
+            >
+              <span class="slds-truncate">{selectedOptionLabel}</span>
+            </button>
+            <div class="slds-input__icon-group slds-input__icon-group_right">
+              <div class="slds-input__icon slds-input__icon_right slds-icon-utility-down slds-icon_container">
+                <svg
+                  class="slds-icon slds-icon-text-default slds-icon_xx-small"
+                  focusable="false"
+                  data-key="down"
+                  aria-hidden="true"
+                  viewBox="0 0 52 52"
+                >
+                  <g>
+                    <path d="M8.3 14h35.4c1 0 1.7 1.3.9 2.2L27.3 37.4c-.6.8-1.9.8-2.5 0L7.3 16.2c-.7-.9-.1-2.2 1-2.2z"></path>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div id="listbox-id-1" class="slds-dropdown slds-dropdown_length-10 slds-dropdown_fluid" role="listbox">
+            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+              <template for:each={options} for:item="option" for:index="index">
+                <li
+                  key={option.value}
+                  data-value={option.value}
+                  role="presentation"
+                  class="slds-listbox__item"
+                  onclick={handleOptionClick}
+                >
+                  <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                    <span class="slds-media__figure slds-listbox__option-icon">
+                      <svg
+                        class="slds-icon slds-icon-text-default slds-icon_x-small slds-hide"
+                        focusable="false"
+                        data-key="check"
+                        aria-hidden="true"
+                        viewBox="0 0 52 52"
+                      >
+                        <g>
+                          <path
+                            d="M19.1 42.5L2.6 25.9c-.6-.6-.6-1.6 0-2.2l2.2-2.2c.6-.6 1.6-.6 2.2 0L19.4 34c.4.4 1.1.4 1.5 0L45.2 9.5c.6-.6 1.6-.6 2.2 0l2.2 2.2c.6.6.6 1.6 0 2.2L21.3 42.5c-.6.7-1.6.7-2.2 0z"
+                          ></path>
+                        </g>
+                      </svg>
+                    </span>
+                    <span class="slds-media__body">
+                      <span class="slds-truncate" title={option.label}>{option.label}</span>
+                    </span>
+                  </div>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

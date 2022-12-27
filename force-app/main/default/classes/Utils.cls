@@ -6,4 +6,12 @@ public without sharing class Utils {
     Map<String, Schema.SObjectField> fieldsMap = describeResult.fields.getMap();
     return fieldsMap;
   }
+
+  public static Boolean isValidField(Schema.DescribeFieldResult describe) {
+    if (describe == null) {
+      return false;
+    }
+
+    return true;
+  }
 }

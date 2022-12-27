@@ -67,4 +67,20 @@ public without sharing class MigrateCustomObjectController {
 
     return JSON.serialize(result);
   }
+
+  @AuraEnabled
+  public static String checkQuery(String query) {
+    Models.UserQueryResponse response = new Models.UserQueryResponse();
+    System.debug(query);
+    try {
+      Integer dataLength = Database.countQuery(String.escapeSingleQuotes(query));
+      response.setSuccess(true);
+      response.setDataLength(dataLength);
+    } catch (Exception e) {
+      response.setSuccess(false);
+      response.setMessage(e.getMessage());
+    }
+
+    return JSON.serialize(response);
+  }
 }

@@ -31,4 +31,34 @@ public without sharing class Models {
       this.length = describe.getLength();
     }
   }
+
+  public class UserQueryResponse {
+    private Boolean success;
+    private Integer dataLength;
+    private String message;
+
+    public Boolean isSuccess() {
+      return this.success;
+    }
+
+    public Integer getDataLength() {
+      return this.dataLength;
+    }
+
+    public String getMessage() {
+      return this.message;
+    }
+
+    public void setSuccess(Boolean success) {
+      this.success = success;
+    }
+
+    public void setDataLength(Integer length) {
+      this.dataLength = length;
+    }
+
+    public void setMessage(String message) {
+      this.message = message;
+    }
+  }
 }
