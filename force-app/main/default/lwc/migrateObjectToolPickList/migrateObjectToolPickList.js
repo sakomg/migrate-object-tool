@@ -11,6 +11,8 @@ export default class MigrateObjectToolPickList extends LightningElement {
   placeholder
   @api
   variant
+  @api
+  disabled = false
 
   get selectedOptionLabel() {
     let label = this.placeholder
@@ -38,6 +40,11 @@ export default class MigrateObjectToolPickList extends LightningElement {
 
   handlePickListClick(event) {
     event.stopPropagation()
+
+    if (this.disabled) {
+      return false
+    }
+
     let classList = event.currentTarget.classList
 
     if (classList.contains('slds-is-open')) {
@@ -46,6 +53,8 @@ export default class MigrateObjectToolPickList extends LightningElement {
       classList.add('slds-is-open')
       this.scrollToSelectedValue()
     }
+
+    return true
   }
 
   handleOptionClick(event) {
@@ -59,9 +68,6 @@ export default class MigrateObjectToolPickList extends LightningElement {
 
     const nodeChilde = node.querySelector('.slds-hide')
     nodeChilde.classList.remove('slds-hide')
-
-    // eslint-disable-next-line @lwc/lwc/no-api-reassignments
-    this.value = event.currentTarget.dataset.value
 
     this.dispatchEvent(new CustomEvent('change'))
 

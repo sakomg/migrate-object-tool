@@ -26,6 +26,7 @@ export default class MigrateObjectTool extends LightningElement {
 
   queryTimeoutId = null
   currentSObjectName = null
+  currentBigObjectName = null
 
   responseUserQuery = {
     message: '',
@@ -100,15 +101,13 @@ export default class MigrateObjectTool extends LightningElement {
     const newValue = event.detail.value
     this.currentSObjectName = newValue
     this.checkQuery(this.conditionQueryValue)
-    console.log('value ', newValue)
-
     const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.soFieldOptions = JSON.parse(soFieldOptions)
-    console.log('this.soFieldOptions ', this.soFieldOptions)
   }
 
   async handleBigObjectChange(event) {
     const newValue = event.detail.value
+    this.currentBigObjectName = newValue
     const boFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.boFieldOptions = JSON.parse(boFieldOptions)
   }
@@ -213,6 +212,12 @@ export default class MigrateObjectTool extends LightningElement {
   checkQuery = async (value) => {
     const rawResponse = await checkQuery({ query: value })
     this.responseUserQuery = JSON.parse(rawResponse)
+  }
+
+  handleSetActiveSection(sectionName) {
+    const accordion = this.template.querySelector('.container-accordion')
+
+    accordion.activeSectionName = sectionName
   }
 }
 

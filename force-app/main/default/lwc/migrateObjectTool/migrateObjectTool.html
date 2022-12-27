@@ -6,146 +6,113 @@
     </div>
 
     <div if:false={loading}>
-      <!-- <div class="slds-page-header">
-        <div class="slds-page-header__row">
-          <div class="slds-page-header__col-title">
-            <div class="slds-media">
-              <div class="slds-no-flex slds-align_absolute-center">
-                <lightning-button
-                  label="Run Immediately"
-                  variant="neutral"
-                  onclick={handleAddClick}
-                  icon-name="standard:activations"
-                  alternative-text="Run Immediately"
-                  title="Run Immediately"
-                  icon-position="right"
-                  class="slds-m-left_medium"
+      <lightning-accordion class="container-accordion" active-section-name="step-1">
+        <lightning-accordion-section name="step-1" label="Step 1">
+          <div id="step-1">
+            <div>
+              <p>Choose objects to transfer data.</p>
+            </div>
+            <div class="pair-container">
+              <div class="pair">
+                <div class="drop-icon"></div>
+                <lightning-combobox
+                  name="sObject"
+                  label="From Object"
+                  value=""
+                  placeholder="Choose sObject"
+                  options={sObjectNameOptions}
+                  onchange={handleSObjectChange}
                 >
-                </lightning-button>
-                <lightning-button
-                  label="Schedule"
-                  variant="brand"
-                  onclick={handleAddClick}
-                  icon-name="standard:schedule_objective"
-                  alternative-text="Schedule"
-                  title="Schedule"
-                  icon-position="right"
-                  class="slds-m-left_medium"
+                </lightning-combobox>
+                <lightning-combobox
+                  name="bObject"
+                  label="To Object"
+                  value=""
+                  placeholder="Choose Big Object"
+                  options={bigObjectNameOptions}
+                  onchange={handleBigObjectChange}
                 >
-                </lightning-button>
+                </lightning-combobox>
+                <div class="delete-icon"></div>
               </div>
             </div>
           </div>
-        </div>
-      </div> -->
+        </lightning-accordion-section>
 
-      <div id="step-1">
-        <div>
-          <h2>Step 1</h2>
-          <p>Choose objects to transfer data.</p>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            <lightning-combobox
-              name="sObject"
-              label="From Object"
-              value=""
-              placeholder="Choose sObject"
-              options={sObjectNameOptions}
-              onchange={handleSObjectChange}
-            >
-            </lightning-combobox>
-            <lightning-combobox
-              name="bObject"
-              label="To Object"
-              value=""
-              placeholder="Choose Big Object"
-              options={bigObjectNameOptions}
-              onchange={handleBigObjectChange}
-            >
-            </lightning-combobox>
-            <div class="delete-icon"></div>
-          </div>
-        </div>
-      </div>
-
-      <hr />
-
-      <div id="step-2">
-        <div>
-          <h2>Step 2</h2>
-          <p>Choose fields to transfer data.</p>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            <p>From Field</p>
-            <p>To Field</p>
-            <div class="delete-icon"></div>
-          </div>
-
-          <template for:each={fieldPairs} for:item="pair" for:index="idx">
-            <div
-              draggable="true"
-              class="drag"
-              key={pair.index}
-              ondragstart={drag.start}
-              ondragover={drag.over}
-              ondragend={handleDragEnd}
-              data-index={idx}
-            >
-              <c-migrate-object-tool-field-pair
-                pair={pair}
-                so-field-options={soFieldOptions}
-                bo-field-options={boFieldOptions}
-                onfieldchange={handleObjectFieldChange}
-                ondeletepair={handleDeleteIconClick}
-              ></c-migrate-object-tool-field-pair>
+        <lightning-accordion-section name="step-2" label="Step 2">
+          <div id="step-2">
+            <div>
+              <p>Choose fields to transfer data.</p>
             </div>
-          </template>
-        </div>
-      </div>
+            <div class="pair-container">
+              <div class="pair">
+                <div class="drop-icon"></div>
+                <p>From Field</p>
+                <p>To Field</p>
+                <div class="delete-icon"></div>
+              </div>
 
-      <hr />
-
-      <div id="step-3">
-        <div>
-          <h2>Step 3</h2>
-          <p>Conditions to fetch Custom Object records.</p>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            <div class="condition-container">
-              <lightning-textarea
-                label="Salesforce Object Query Language (SOQL)"
-                onchange={handleInputUserQuery}
-                value={conditionQueryValue}
-                placeholder="Enter query"
-              ></lightning-textarea>
-              <div class={styleAfterQuery}>{messageAfterQuery}</div>
+              <template for:each={fieldPairs} for:item="pair" for:index="idx">
+                <div
+                  draggable="true"
+                  class="drag"
+                  key={pair.index}
+                  ondragstart={drag.start}
+                  ondragover={drag.over}
+                  ondragend={handleDragEnd}
+                  data-index={idx}
+                >
+                  <c-migrate-object-tool-field-pair
+                    pair={pair}
+                    so-field-options={soFieldOptions}
+                    bo-field-options={boFieldOptions}
+                    onfieldchange={handleObjectFieldChange}
+                    ondeletepair={handleDeleteIconClick}
+                  ></c-migrate-object-tool-field-pair>
+                </div>
+              </template>
             </div>
-            <div class="delete-icon"></div>
           </div>
-        </div>
-      </div>
+        </lightning-accordion-section>
 
-      <hr />
-
-      <div id="step-4">
-        <div>
-          <h2>Step 4</h2>
-          <p>Executing migration process.</p>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            // TODO
-            <div class="delete-icon"></div>
+        <lightning-accordion-section name="step-3" label="Step 3">
+          <div id="step-3">
+            <div>
+              <p>Conditions to fetch Custom Object records.</p>
+            </div>
+            <div class="pair-container">
+              <div class="pair">
+                <div class="drop-icon"></div>
+                <div class="condition-container">
+                  <lightning-textarea
+                    label="Salesforce Object Query Language (SOQL)"
+                    onchange={handleInputUserQuery}
+                    value={conditionQueryValue}
+                    placeholder="Enter query"
+                  ></lightning-textarea>
+                  <div class={styleAfterQuery}>{messageAfterQuery}</div>
+                </div>
+                <div class="delete-icon"></div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </lightning-accordion-section>
+
+        <lightning-accordion-section name="step-4" label="Step 4">
+          <div id="step-4">
+            <div>
+              <p>Executing migration process.</p>
+            </div>
+            <div class="pair-container">
+              <div class="pair">
+                <div class="drop-icon"></div>
+                // TODO
+                <div class="delete-icon"></div>
+              </div>
+            </div>
+          </div>
+        </lightning-accordion-section>
+      </lightning-accordion>
 
       <!-- <c-migrate-object-tool-pick-list
         name="sObject"

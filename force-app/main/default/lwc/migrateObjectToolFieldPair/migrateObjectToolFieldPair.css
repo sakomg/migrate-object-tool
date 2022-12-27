@@ -31,7 +31,7 @@ h2 {
   width: 40%;
 }
 
-.pair + .pair {
+.pair {
   margin-top: 15px;
 }
 
