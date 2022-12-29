@@ -20,7 +20,11 @@ export default class MigrateObjectTool extends LightningElement {
     toShowDropButton: false
   }
 
+  activeSections = ['step-1', 'step-2', 'step-3', 'step-4']
+
   loading = false
+  _step2loading = false
+  openPanelLeft = true
   soFieldOptions = []
   boFieldOptions = []
 
@@ -61,6 +65,10 @@ export default class MigrateObjectTool extends LightningElement {
     return `SELECT COUNT() FROM ${this.currentSObjectName}`
   }
 
+  get step2loading() {
+    return this._step2loading
+  }
+
   get drag() {
     return new Drag([...this.fieldPairs])
   }
@@ -98,18 +106,24 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   async handleSObjectChange(event) {
+    this._step2loading = true
     const newValue = event.detail.value
     this.currentSObjectName = newValue
     this.checkQuery(this.conditionQueryValue)
     const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.soFieldOptions = JSON.parse(soFieldOptions)
+    this.soFieldOptions = this.formatPickListOption(this.soFieldOptions)
+    this._step2loading = false
   }
 
   async handleBigObjectChange(event) {
+    this._step2loading = true
     const newValue = event.detail.value
     this.currentBigObjectName = newValue
     const boFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.boFieldOptions = JSON.parse(boFieldOptions)
+    this.boFieldOptions = this.formatPickListOption(this.boFieldOptions)
+    this._step2loading = false
   }
 
   handleObjectFieldChange(event) {
@@ -218,6 +232,19 @@ export default class MigrateObjectTool extends LightningElement {
     const accordion = this.template.querySelector('.container-accordion')
 
     accordion.activeSectionName = sectionName
+  }
+
+  handleTogglePanelLeft() {
+    this.openPanelLeft = !this.openPanelLeft
+  }
+
+  formatPickListOption(pickListOptions) {
+    const formattedPickListOptions = pickListOptions.map(({ label, value, type }) => ({
+      label: `${label} (${type})`,
+      value: value
+    }))
+
+    return [...formattedPickListOptions]
   }
 }
 

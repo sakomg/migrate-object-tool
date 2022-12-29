@@ -1,5 +1,5 @@
 public without sharing class Models {
-  public class PickListOption implements Comparable {
+  public virtual class PickListOption implements Comparable {
     private String label;
     private String value;
 
@@ -17,6 +17,15 @@ public without sharing class Models {
         return 1;
       }
       return -1;
+    }
+  }
+
+  public class PickListOptionWithType extends PickListOption {
+    private String type;
+
+    public PickListOptionWithType(String label, String value, String type) {
+      super(label, value);
+      this.type = type;
     }
   }
 

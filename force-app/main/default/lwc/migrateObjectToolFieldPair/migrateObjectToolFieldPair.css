@@ -27,6 +27,8 @@ h2 {
 }
 
 .pair lightning-combobox,
+.pair c-migrate-object-tool-pick-list,
+.pair c-combobox,
 .pair p {
   width: 40%;
 }

@@ -5,7 +5,7 @@
         <lightning-icon icon-name="utility:rows" size="small"></lightning-icon>
       </template>
     </div>
-    <lightning-combobox
+    <c-combobox
       name="sObjectFields"
       variant="label-hidden"
       value={pair.soField}
@@ -16,9 +16,9 @@
       data-property="soField"
       disabled={isDisabledSoFields}
     >
-    </lightning-combobox>
+    </c-combobox>
 
-    <lightning-combobox
+    <c-combobox
       name="bObject"
       variant="label-hidden"
       value={pair.boField}
@@ -29,7 +29,7 @@
       data-property="boField"
       disabled={isDisabledBoFields}
     >
-    </lightning-combobox>
+    </c-combobox>
 
     <div class="delete-icon">
       <svg

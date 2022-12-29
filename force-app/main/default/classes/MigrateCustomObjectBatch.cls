@@ -85,6 +85,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
           delete customObjectsToDelete;
         }
       }
+      this.publishEventToBar(context);
     } catch (Exception e) {
       this.logger.insertLog(
         MigrateCustomObjectLogger.Status.ERROR,
@@ -96,5 +97,23 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
   public void finish(Database.BatchableContext context) {
     String finishedMessage = 'Finished. Success size: ' + this.totalSizeSuccess + '; Error size: ' + this.totalSizeError;
     this.logger.insertLog(MigrateCustomObjectLogger.Status.DONE, finishedMessage);
+  }
+
+  private void publishEventToBar(Database.BatchableContext context) {
+    Batch_Process__e bpEvent = new Batch_Process__e();
+
+    AsyncApexJob job = [
+      SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems
+      FROM AsyncApexJob
+      WHERE Id = :context.getJobId()
+    ];
+
+    bpEvent.Batch_Id__c = context.getJobId();
+    bpEvent.Apex_Class__c = String.valueOf(this).substring(0, String.valueOf(this).indexOf(':'));
+    bpEvent.Count__c = Integer.valueOf(job.JobItemsProcessed);
+    bpEvent.Object_Name__c = this.service.getSObjectName();
+    bpEvent.Big_Object_Name__c = this.service.getBigObjectName();
+
+    Database.SaveResult results = EventBus.publish(bpEvent);
   }
 }

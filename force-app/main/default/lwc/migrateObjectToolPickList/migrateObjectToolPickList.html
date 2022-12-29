@@ -19,7 +19,9 @@
               aria-haspopup="listbox"
               disabled={disabled}
             >
-              <span class="slds-truncate">{selectedOptionLabel}</span>
+              <span class="slds-truncate">
+                <lightning-formatted-rich-text value={selectedOptionLabel}></lightning-formatted-rich-text
+              ></span>
             </button>
             <div class="slds-input__icon-group slds-input__icon-group_right">
               <div class="slds-input__icon slds-input__icon_right slds-icon-utility-down slds-icon_container">
@@ -64,7 +66,9 @@
                       </svg>
                     </span>
                     <span class="slds-media__body">
-                      <span class="slds-truncate" title={option.label}>{option.label}</span>
+                      <span class="slds-truncate" title={option.label}>
+                        <lightning-formatted-rich-text value={option.label}></lightning-formatted-rich-text
+                      ></span>
                     </span>
                   </div>
                 </li>

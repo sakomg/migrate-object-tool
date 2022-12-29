@@ -1,7 +1,6 @@
 .container {
   min-height: 100%;
   background-color: white;
-  padding: 15px;
 }
 
 h2 {
@@ -27,6 +26,7 @@ h2 {
 }
 
 .pair lightning-combobox,
+.pair c-combobox,
 .pair p {
   width: 40%;
 }
@@ -63,3 +63,11 @@ hr {
 .drag {
   margin-top: 15px;
 }
+
+.slds-panel_docked {
+  height: auto !important;
+}
+
+/* :host {
+  --slds-c-accordion-section-spacing-inline-end: 3rem;
+} */

@@ -58,8 +58,9 @@ public without sharing class MigrateCustomObjectController {
       Schema.DescribeFieldResult describe = rawField.getDescribe();
       String label = describe.getLabel();
       String value = describe.getName();
+      String type = describe.getType().name();
       if (Utils.isValidField(describe)) {
-        result.add(new Models.PickListOption(label, value));
+        result.add(new Models.PickListOptionWithType(label, value, type));
       }
     }
 
@@ -72,11 +73,17 @@ public without sharing class MigrateCustomObjectController {
   public static String checkQuery(String query) {
     Models.UserQueryResponse response = new Models.UserQueryResponse();
     System.debug(query);
+    if (String.isBlank(query)) {
+      return JSON.serialize(response);
+    }
+
     try {
-      Integer dataLength = Database.countQuery(String.escapeSingleQuotes(query));
+      // String escapedQuery = String.escapeSingleQuotes(query);
+      // System.debug(escapedQuery);
+      Integer dataLength = Database.countQuery(query);
       response.setSuccess(true);
       response.setDataLength(dataLength);
-    } catch (Exception e) {
+    } catch (QueryException e) {
       response.setSuccess(false);
       response.setMessage(e.getMessage());
     }

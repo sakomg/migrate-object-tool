@@ -1,0 +1,7 @@
+:host {
+  --slds-c-global-header-color-background: inherit;
+}
+
+.days-number-column-container {
+  width: 80px;
+}

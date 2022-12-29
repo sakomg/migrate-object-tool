@@ -5,6 +5,14 @@ export default class MigrateObjectToolFieldPair extends LightningElement {
   @api soFieldOptions
   @api boFieldOptions
 
+  // get _soFieldOPtions() {
+  //   console.log('get _soFieldOPtions ')
+  //   return this.soFieldOptions.map(({ label, value, type }) => ({
+  //     label: `${label} (<i>${type}</i>)`,
+  //     value: value
+  //   }))
+  // }
+
   get isDisabledSoFields() {
     return this.soFieldOptions.length === 0
   }

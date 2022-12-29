@@ -14,17 +14,23 @@ export default class MigrateObjectToolPickList extends LightningElement {
   @api
   disabled = false
 
+  connectedCallback() {
+    console.log('this.options', this.options)
+  }
+
   get selectedOptionLabel() {
     let label = this.placeholder
 
-    this.options.every((option) => {
-      if (option.value === this.value) {
-        label = option.label
-        return false
-      }
-      return true
-    })
-
+    if (this.options) {
+      console.log(this.options)
+      this.options.every((option) => {
+        if (option.value === this.value) {
+          label = option.label
+          return false
+        }
+        return true
+      })
+    }
     return label
   }
 
@@ -59,6 +65,7 @@ export default class MigrateObjectToolPickList extends LightningElement {
 
   handleOptionClick(event) {
     const node = event.currentTarget
+    const selectedValue = node.dataset.value
 
     const svgNodes = this.template.querySelectorAll('[data-key="check"]')
 
@@ -69,16 +76,16 @@ export default class MigrateObjectToolPickList extends LightningElement {
     const nodeChilde = node.querySelector('.slds-hide')
     nodeChilde.classList.remove('slds-hide')
 
-    this.dispatchEvent(new CustomEvent('change'))
+    this.dispatchEvent(new CustomEvent('change', { detail: { value: selectedValue } }))
 
     const buttonNode = this.template.querySelector('button')
     buttonNode.classList.add('slds-combobox__input-value')
   }
 
-  handleKeyDown(event) {
-    console.log('handleKeyDown')
-    console.log(event.key)
-  }
+  //   handleKeyDown(event) {
+  //     console.log('handleKeyDown')
+  //     console.log(event.key)
+  //   }
 
   scrollToSelectedValue() {
     let tmpValue = this.value
