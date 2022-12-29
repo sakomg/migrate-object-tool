@@ -2,7 +2,8 @@
   <div>
     <div class="slds-p-bottom_x-small">
       <span>Records processed:&nbsp;</span>
-      <strong>{recordsProcessed}</strong>
+      <strong>{recordsProcessed}&nbsp;</strong>
+      <span class={statusStyle}>{statusValue}</span>
     </div>
     <lightning-progress-bar value={processedPercent} size="medium" variant="circular"></lightning-progress-bar>
   </div>

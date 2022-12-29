@@ -11,6 +11,14 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
     return (this.recordsProcessed / this.totalRecords) * 100
   }
 
+  get statusStyle() {
+    return this.recordsProcessed === 0 ? 'slds-badge' : 'slds-badge slds-theme_success'
+  }
+
+  get statusValue() {
+    return this.recordsProcessed === 0 ? 'InActive' : 'Active'
+  }
+
   connectedCallback() {
     this.handleSubscribe()
   }

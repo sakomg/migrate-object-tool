@@ -42,7 +42,23 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
 
     this.monthDayPairs[pairIndex][property] = newValue
 
+    if (property === 'month') {
+      this.monthDayPairs[pairIndex].dayOptions = this.getDayOptions(newValue)
+      this.monthDayPairs[pairIndex].isDisabled = false
+    }
+
     this.addDummyPair(pairIndex)
+  }
+
+  getDayOptions(month) {
+    const daysInMonth = new Date(2022, month, 0).getDate()
+    const dayOptions = []
+
+    for (let index = 1; index <= daysInMonth; index++) {
+      dayOptions.push({ label: index + '', value: index })
+    }
+
+    return dayOptions
   }
 
   addDummyPair() {
@@ -51,7 +67,7 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
     const pair = monthDayPairs[lastIndex]
     console.log('pair ', pair)
 
-    if (pair.month.length && pair.day.length) {
+    if (pair.month && pair.day) {
       const dummyPair = { ...this.dummyFieldPair }
 
       console.log('dummyPair ', dummyPair)

@@ -1,11 +1,11 @@
 <template>
   <div class="container">
-    <div if:true={loading}>
+    <div if:true={loadingObj.main}>
       <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
       <img src="/img/chatter/Desert.svg" class="illustration-onloading" alt="Desert" />
     </div>
 
-    <div if:false={loading}>
+    <div if:false={loadingObj.main}>
       <header class="slds-theme_default slds-border_bottom slds-p-around_small" style="z-index: 1">
         <lightning-button-icon-stateful
           icon-name="utility:toggle_panel_left"
@@ -39,7 +39,7 @@
             </div>
           </div>
         </template>
-        <div class="demo-only-content slds-col slds-p-around_medium">
+        <div class="slds-col slds-p-around_medium">
           <lightning-accordion class="container-accordion" allow-multiple-sections-open active-section-name={activeSections}>
             <lightning-accordion-section name="step-1" label="Step 1">
               <div id="step-1">
@@ -73,15 +73,15 @@
               </div>
             </lightning-accordion-section>
 
-            <lightning-accordion-section name="step-2" label="Step 2">
+            <lightning-accordion-section name="step-2" label="Step 2" class="slds-is-relative">
               <div id="step-2">
+                <div if:true={loadingObj.step2}>
+                  <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+                </div>
                 <div>
                   <i>Choose fields to transfer data.</i>
                 </div>
                 <div class="pair-container">
-                  <div if:true={step2loading} class="slds-is-relative">
-                    <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
-                  </div>
                   <div class="pair">
                     <div class="drop-icon"></div>
                     <p>From Field</p>
@@ -112,8 +112,11 @@
               </div>
             </lightning-accordion-section>
 
-            <lightning-accordion-section name="step-3" label="Step 3">
+            <lightning-accordion-section name="step-3" label="Step 3" class="slds-is-relative">
               <div id="step-3">
+                <div if:true={loadingObj.step3}>
+                  <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+                </div>
                 <div>
                   <i>Conditions to fetch Custom Object records.</i>
                 </div>

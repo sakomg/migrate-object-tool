@@ -20,10 +20,16 @@ export default class MigrateObjectTool extends LightningElement {
     toShowDropButton: false
   }
 
+  @track loadingObj = {
+    main: false,
+    step1: false,
+    step2: false,
+    step3: false,
+    step4: false
+  }
+
   activeSections = ['step-1', 'step-2', 'step-3', 'step-4']
 
-  loading = false
-  _step2loading = false
   openPanelLeft = true
   soFieldOptions = []
   boFieldOptions = []
@@ -65,10 +71,6 @@ export default class MigrateObjectTool extends LightningElement {
     return `SELECT COUNT() FROM ${this.currentSObjectName}`
   }
 
-  get step2loading() {
-    return this._step2loading
-  }
-
   get drag() {
     return new Drag([...this.fieldPairs])
   }
@@ -81,12 +83,12 @@ export default class MigrateObjectTool extends LightningElement {
     promises.push(this._getSObjectNames())
     promises.push(this._getBigObjectNames())
 
-    Promise.all(promises).finally(() => (this.loading = false))
+    Promise.all(promises).finally(() => (this.loadingObj.main = false))
   }
 
   async _getSObjectNames() {
     try {
-      this.loading = true
+      this.loadingObj.main = true
       const sObjectNames = await getObjectNames({ objectType: CUSTOM_OBJECT })
       this.sObjectNameOptions = JSON.parse(sObjectNames)
     } catch (error) {
@@ -96,7 +98,7 @@ export default class MigrateObjectTool extends LightningElement {
 
   async _getBigObjectNames() {
     try {
-      this.loading = true
+      this.loadingObj.main = true
       const bigObjectNames = await getObjectNames({ objectType: BIG_OBJECT })
       this.bigObjectNameOptions = JSON.parse(bigObjectNames)
       console.log(s(this.bigObjectNameOptions))
@@ -106,24 +108,25 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   async handleSObjectChange(event) {
-    this._step2loading = true
+    this.loadingObj.step2 = true
+    this.loadingObj.step3 = true
     const newValue = event.detail.value
     this.currentSObjectName = newValue
     this.checkQuery(this.conditionQueryValue)
     const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.soFieldOptions = JSON.parse(soFieldOptions)
     this.soFieldOptions = this.formatPickListOption(this.soFieldOptions)
-    this._step2loading = false
+    this.loadingObj.step2 = false
   }
 
   async handleBigObjectChange(event) {
-    this._step2loading = true
+    this.loadingObj.step2 = true
     const newValue = event.detail.value
     this.currentBigObjectName = newValue
     const boFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.boFieldOptions = JSON.parse(boFieldOptions)
     this.boFieldOptions = this.formatPickListOption(this.boFieldOptions)
-    this._step2loading = false
+    this.loadingObj.step2 = false
   }
 
   handleObjectFieldChange(event) {
@@ -226,6 +229,7 @@ export default class MigrateObjectTool extends LightningElement {
   checkQuery = async (value) => {
     const rawResponse = await checkQuery({ query: value })
     this.responseUserQuery = JSON.parse(rawResponse)
+    this.loadingObj.step3 = false
   }
 
   handleSetActiveSection(sectionName) {

@@ -51,10 +51,10 @@
       <lightning-layout-item padding="around-small" size="8" medium-device-size="8" if:true={isMonthlyPeriod}>
         <div class="page-section page-header slds-border_left">
           <div class="slds-grid slds-grid_align-spread slds-p-left_small">
-            <div class="slds-form_horizontal slds-form slds-grid slds-wrap">
+            <div class="slds-form slds-grid slds-wrap">
               <div class="slds-col slds-size_12-of-12">Day(s):</div>
               <template for:each={daysNumberOptions} for:item="option" for:index="index">
-                <div key={option.label} class="days-number-column-container">
+                <div key={option.label} class="">
                   <lightning-checkbox-group
                     name="Days Number"
                     variant="label-hidden"
@@ -74,7 +74,7 @@
       <lightning-layout-item padding="around-small" size="8" medium-device-size="8" if:true={isYearlyPeriod}>
         <div class="page-section page-header slds-border_left">
           <div class="slds-grid slds-grid_align-spread slds-p-left_small">
-            <div class="slds-form_horizontal slds-form slds-grid slds-wrap">
+            <div class="slds-form slds-grid slds-wrap">
               <div class="slds-col slds-size_12-of-12">Month(s):</div>
               <c-migrate-object-tool-recurrence-yearly></c-migrate-object-tool-recurrence-yearly>
             </div>
@@ -85,7 +85,7 @@
       <lightning-layout-item padding="around-small" size="12">
         <div class="page-section page-header">
           <div class="slds-grid slds-grid_align-spread">
-            <div class="">Section 4</div>
+            <div style="height: 500px" class="">Section 4</div>
           </div>
         </div>
       </lightning-layout-item>
