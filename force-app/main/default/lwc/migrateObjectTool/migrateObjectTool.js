@@ -18,8 +18,11 @@ export default class MigrateObjectTool extends LightningElement {
     index: 0,
     soField: '',
     boField: '',
+    soFieldType: '',
+    boFieldType: '',
     toShowDeleteButton: false,
-    toShowDropButton: false
+    toShowDropButton: false,
+    toShowValidIndicator: false
   }
   @track loadingObj = {
     main: false,
@@ -46,6 +49,10 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   _conditionQueryValue = ''
+
+  get recurrenceComponent() {
+    return this.template.querySelector('c-migrate-object-tool-recurrence')
+  }
 
   get messageAfterQuery() {
     if (this.responseUserQuery.success === null) {
@@ -154,15 +161,14 @@ export default class MigrateObjectTool extends LightningElement {
     const fieldPairs = [...this.fieldPairs]
     const lastIndex = fieldPairs.length - 1
     const pair = fieldPairs[lastIndex]
-    console.log('pair ', pair)
 
     if (pair.soField.length && pair.boField.length) {
       const dummyPair = { ...this.dummyFieldPair }
-
-      console.log('dummyPair ', dummyPair)
-
       fieldPairs[lastIndex].toShowDeleteButton = true
       fieldPairs[lastIndex].toShowDropButton = true
+      fieldPairs[lastIndex].toShowValidIndicator = true
+      fieldPairs[lastIndex].soFieldType = this.soFieldOptions.find((option) => option.value === pair.soField)?.type
+      fieldPairs[lastIndex].boFieldType = this.boFieldOptions.find((option) => option.value === pair.boField)?.type
       dummyPair.index = lastIndex + 1
       fieldPairs.push(dummyPair)
       this.fieldPairs = [...fieldPairs]
@@ -173,20 +179,14 @@ export default class MigrateObjectTool extends LightningElement {
   handleDeleteIconClick(event) {
     event.stopPropagation()
     const pairIndex = Number(event.detail.pairIndex)
-    console.log('pairIndex ', pairIndex)
     const fieldPairs = [...this.fieldPairs]
-    console.log('fieldPairs ', fieldPairs)
-
     const result = fieldPairs.filter((pair) => pair.index !== pairIndex)
-    console.log('result ', result)
 
     for (let i = 0; i < result.length; i++) {
       result[i].index = i
     }
-    console.log('result ', result)
 
     this.fieldPairs = [...result]
-    console.log('this.fieldPairs ', this.fieldPairs)
   }
 
   handleDragEnd(e) {
@@ -213,18 +213,22 @@ export default class MigrateObjectTool extends LightningElement {
     }
   }
 
-  async handleSummary() {
-    const dataToShow = {
-      objectName: this.currentSObjectName ?? 'None',
-      bigObjectName: this.currentBigObjectName ?? 'None',
+  formSummaryPayload() {
+    return {
+      objectName: this.currentSObjectName || 'None',
+      bigObjectName: this.currentBigObjectName || 'None',
       fields: this.excludeDummyPair(this.fieldPairs),
-      query: this.conditionQueryValue,
-      totalRecords: this.responseUserQuery.success ? this.responseUserQuery.dataLength : 0
+      query: this.conditionQueryValue || 'None',
+      totalRecords: this.responseUserQuery.success ? this.responseUserQuery.dataLength : 0,
+      recurrenceSetup: this.recurrenceComponent.getRecurrenceSetupData()
     }
+  }
+
+  async handleSummary() {
     const result = await Modal.open({
       size: 'small',
       description: 'Info',
-      targetData: dataToShow
+      targetData: this.formSummaryPayload()
     })
 
     if (result === 'execute') {
@@ -288,7 +292,8 @@ export default class MigrateObjectTool extends LightningElement {
   formatPickListOption(pickListOptions) {
     const formattedPickListOptions = pickListOptions.map(({ label, value, type }) => ({
       label: `${label} (${type})`,
-      value: value
+      value: value,
+      type: type
     }))
 
     return [...formattedPickListOptions]

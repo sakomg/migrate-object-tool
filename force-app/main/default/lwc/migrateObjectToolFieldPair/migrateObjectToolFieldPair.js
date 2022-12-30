@@ -1,17 +1,19 @@
 import { LightningElement, api } from 'lwc'
 
+const ACCEPTABLE_TYPES = {
+  ID: ['STRING', 'REFERENCE'],
+  BOOLEAN: ['STRING'],
+  DATE: ['STRING'],
+  DATETIME: ['STRING'],
+  DOUBLE: ['STRING'],
+  PHONE: ['STRING'],
+  CURRENCY: ['STRING']
+}
+
 export default class MigrateObjectToolFieldPair extends LightningElement {
-  @api pair
+  @api pair = {}
   @api soFieldOptions
   @api boFieldOptions
-
-  // get _soFieldOPtions() {
-  //   console.log('get _soFieldOPtions ')
-  //   return this.soFieldOptions.map(({ label, value, type }) => ({
-  //     label: `${label} (<i>${type}</i>)`,
-  //     value: value
-  //   }))
-  // }
 
   get isDisabledSoFields() {
     return this.soFieldOptions.length === 0
@@ -19,6 +21,39 @@ export default class MigrateObjectToolFieldPair extends LightningElement {
 
   get isDisabledBoFields() {
     return this.boFieldOptions.length === 0
+  }
+
+  get indicator() {
+    const result = {
+      content: null,
+      icon: null,
+      variant: null
+    }
+
+    if (Object.keys(this.pair).length === 0) {
+      return result
+    }
+
+    // TODO: add message for contents
+    if (this.pair.soFieldType === this.pair.boFieldType) {
+      result.content = 'Success'
+      result.icon = 'utility:success'
+      result.variant = ''
+    } else if (this.hasAcceptableType(this.pair.soFieldType, this.pair.boFieldType)) {
+      result.content = 'Warning'
+      result.icon = 'utility:warning'
+      result.variant = 'warning'
+    } else {
+      result.content = 'Error'
+      result.icon = 'utility:error'
+      result.variant = 'error'
+    }
+
+    return result
+  }
+
+  hasAcceptableType(soFieldType, boFieldType) {
+    return ACCEPTABLE_TYPES[soFieldType] && ACCEPTABLE_TYPES[soFieldType].includes(boFieldType)
   }
 
   handleObjectFieldChange(event) {

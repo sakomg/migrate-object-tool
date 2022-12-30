@@ -1,17 +1,19 @@
-import { LightningElement } from 'lwc'
+import { LightningElement, api } from 'lwc'
 
 export default class MigrateObjectToolRecurrence extends LightningElement {
+  selectedMigrateTime = '18:30:00.000Z'
+
   selectedPeriod = 'Daily'
   selectedWeekDays = ['1', '2', '3', '4', '5', '6', '7']
   savedSelectedWeekDays = []
+  toSaveSelectedWeekDays = false
   disabledWeekDays = true
 
   selectedDaysNumber = []
   savedSelectedDaysNumber = []
   daysNumberOptions = []
-  toSaveSelectedWeekDays = false
 
-  monthDayPairsList = []
+  selectedMonthDayPairs = []
 
   get periodOptions() {
     return [
@@ -81,7 +83,7 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
       this.toSaveSelectedWeekDays = true
     }
 
-    if (this.selectedPeriod === 'Monthly') {
+    if (this.selectedPeriod === 'Monthly' || this.selectedPeriod === 'Yearly') {
       if (this.toSaveSelectedWeekDays) {
         this.savedSelectedWeekDays = [...this.selectedWeekDays]
       }
@@ -104,13 +106,47 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
   handleMonthDayPairsChange(event) {
     event.stopPropagation()
     event.preventDefault()
-    let tmpMonthDayPairsList = []
-    tmpMonthDayPairsList = event.detail.newList
 
-    console.log(JSON.stringify(event.detail))
+    this.selectedMonthDayPairs = [...event.detail.newMonthDayPairsList]
+  }
 
-    console.log('handleMonthDayPairsChange tmpMonthDayPairsList', JSON.stringify(tmpMonthDayPairsList))
-    this.monthDayPairsList = tmpMonthDayPairsList
-    console.log('handleMonthDayPairsChange monthDayPairsList', JSON.stringify(this.monthDayPairsList))
+  handleMigrateTimeChange(event) {
+    this.selectedMigrateTime = event.detail.value
+    console.log('this.selectedMigrateTime ', this.selectedMigrateTime)
+  }
+
+  @api
+  getRecurrenceSetupData() {
+    console.log('getRecurrenceSetupData')
+    let recurrenceSetupData = {}
+    recurrenceSetupData.period = this.selectedPeriod
+    recurrenceSetupData.time = this.selectedMigrateTime
+
+    switch (this.selectedPeriod) {
+      case 'Daily':
+      case 'Weekly':
+        recurrenceSetupData.selectedValues = this.selectedWeekDays
+        break
+      case 'Monthly':
+        recurrenceSetupData.selectedValues = this.extractSelectedDaysNumber()
+        break
+      case 'Yearly':
+        recurrenceSetupData.selectedValues = this.selectedMonthDayPairs
+        break
+      default:
+        console.error(`Error: the period ${this.selectedPeriod} doesn't match with any available`)
+        break
+    }
+
+    return recurrenceSetupData
+  }
+
+  extractSelectedDaysNumber() {
+    console.log(this.daysNumberOptions)
+    let selectedDaysNumber = []
+    this.daysNumberOptions.forEach((element) => {
+      selectedDaysNumber = selectedDaysNumber.concat(element.selectedDaysNumber)
+    })
+    return selectedDaysNumber
   }
 }

@@ -3,10 +3,10 @@
   <lightning-modal-body>
     <ul class="slds-timeline">
       <li>
-        <div class="slds-timeline__item_expandable slds-is-open">
+        <div class="container-step-1 slds-timeline__item_expandable slds-is-open">
           <div class="slds-media">
             <div class="slds-media__figure">
-              <button class="slds-button slds-button_icon" title="">
+              <button onclick={handleExpandStep} data-step="container-step-1" class="slds-button slds-button_icon" title="">
                 <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
                   <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
                 </svg>
@@ -51,10 +51,10 @@
         </div>
       </li>
       <li>
-        <div class="slds-timeline__item_expandable slds-is-open">
+        <div class="container-step-2 slds-timeline__item_expandable slds-is-open">
           <div class="slds-media">
             <div class="slds-media__figure">
-              <button class="slds-button slds-button_icon" title="">
+              <button onclick={handleExpandStep} data-step="container-step-2" class="slds-button slds-button_icon" title="">
                 <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
                   <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
                 </svg>
@@ -87,18 +87,29 @@
                     <span class="slds-text-title slds-p-bottom_x-small">{data.bigObjectName} field</span>
                   </li>
                 </ul> -->
-                <template for:each={data.fields} for:item="item">
-                  <ul key={item.index} class="slds-list_horizontal slds-wrap">
-                    <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
-                      <span class="slds-text-body_medium slds-truncate" title={item.soField}> {item.soField} </span>
-                    </li>
-                    <li class="slds-grid slds-grid_vertical slds-size_2-of-8 slds-p-bottom_small">
+                <template if:true={data.fields.length}>
+                  <template for:each={data.fields} for:item="item">
+                    <ul key={item.index} class="slds-list_horizontal slds-wrap">
+                      <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
+                        <span class="slds-text-body_medium slds-truncate" title={item.soField}> {item.soField} </span>
+                      </li>
+                      <li class="slds-grid slds-grid_vertical slds-size_2-of-8 slds-p-bottom_small">
+                        <span class="slds-text-body_medium slds-truncate"
+                          ><lightning-icon icon-name="utility:jump_to_right" size="small"></lightning-icon
+                        ></span>
+                      </li>
+                      <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
+                        <span class="slds-text-body_medium slds-truncate" title={item.boField}> {item.boField} </span>
+                      </li>
+                    </ul>
+                  </template>
+                </template>
+                <template if:false={data.fields.length}>
+                  <ul class="slds-list_horizontal slds-wrap">
+                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
                       <span class="slds-text-body_medium slds-truncate"
-                        ><lightning-icon icon-name="utility:product_transfer" size="small"></lightning-icon
-                      ></span>
-                    </li>
-                    <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
-                      <span class="slds-text-body_medium slds-truncate" title={item.boField}> {item.boField} </span>
+                        >Please complete the mapping fields in <a onclick={handleOpenStep} data-step="step-2">step 2</a>
+                      </span>
                     </li>
                   </ul>
                 </template>
@@ -108,10 +119,10 @@
         </div>
       </li>
       <li>
-        <div class="slds-timeline__item_expandable slds-is-open">
+        <div class="container-step-3 slds-timeline__item_expandable slds-is-open">
           <div class="slds-media">
             <div class="slds-media__figure">
-              <button class="slds-button slds-button_icon" title="">
+              <button onclick={handleExpandStep} data-step="container-step-3" class="slds-button slds-button_icon" title="">
                 <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
                   <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
                 </svg>
@@ -165,10 +176,10 @@
         </div>
       </li>
       <li>
-        <div class="slds-timeline__item_expandable slds-is-open">
+        <div class="container-step-4 slds-timeline__item_expandable slds-is-open">
           <div class="slds-media">
             <div class="slds-media__figure">
-              <button class="slds-button slds-button_icon" title="">
+              <button onclick={handleExpandStep} data-step="container-step-4" class="slds-button slds-button_icon" title="">
                 <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
                   <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
                 </svg>
@@ -191,32 +202,29 @@
               <p class="slds-m-horizontal_xx-small">Migration Recurrence.</p>
               <article
                 class="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small slds-p-around_medium"
-                id="event-item-expanded-36"
                 aria-hidden="false"
               >
                 <ul class="slds-list_horizontal slds-wrap">
                   <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
-                    <span class="slds-text-title slds-p-bottom_x-small">Location</span>
-                    <span class="slds-text-body_medium slds-truncate" title="Westen St. Francis, San Francisco, CA, 94622">
-                      <a href="#">Westen St. Francis, San Francisco, CA, 94622</a>
+                    <span class="slds-text-title slds-p-bottom_x-small">Period</span>
+                    <span class="slds-text-body_medium slds-truncate" title={data.recurrenceSetup.period}>
+                      <lightning-formatted-text value={data.recurrenceSetup.period}></lightning-formatted-text>
                     </span>
                   </li>
                   <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
-                    <span class="slds-text-title slds-p-bottom_x-small">Attendees</span>
-                    <span class="slds-text-body_medium slds-truncate" title="Jason Dewar (Organizer) + 5 others">
-                      <a href="#">Jason Dewar (Organizer) + 5 others</a>
+                    <span class="slds-text-title slds-p-bottom_x-small">Time</span>
+                    <span class="slds-text-body_medium slds-truncate" title={data.recurrenceSetup.time}>
+                      <lightning-formatted-time value={data.recurrenceSetup.time}></lightning-formatted-time>
                     </span>
                   </li>
-                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
-                    <span class="slds-text-title slds-p-bottom_x-small">When</span>
-                    <span class="slds-text-body_medium slds-truncate" title="March 26, 10:00 AM - 11:00 AM">
-                      <a href="#">March 26, 10:00 AM - 11:00 AM</a>
-                    </span>
-                  </li>
+                  <!-- <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">Day(s)</span>
+                    <span class="slds-text-body_medium slds-truncate">{selectedTimes}</span>
+                  </li> -->
                 </ul>
                 <div>
-                  <span class="slds-text-title">Description</span>
-                  <p class="slds-p-top_x-small">Let&#x27;s discuss the 2017 product roadmap and address any questions</p>
+                  <span class="slds-text-title">Days(s)</span>
+                  <p class="slds-p-top_x-small">{selectedTimes}</p>
                 </div>
               </article>
             </div>

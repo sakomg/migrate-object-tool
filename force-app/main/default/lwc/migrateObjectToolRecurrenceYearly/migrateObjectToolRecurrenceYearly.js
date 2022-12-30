@@ -70,9 +70,6 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
     const newValue = Number(event.detail.value)
     const pairIndex = Number(event.currentTarget.dataset.pairIndex)
     const property = event.currentTarget.dataset.property
-    console.log('newValue', newValue)
-    console.log('pairIndex', pairIndex)
-    console.log('property', property)
 
     this.monthDayPairs[pairIndex][property] = newValue
 
@@ -80,7 +77,6 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
       this.monthDayPairs[pairIndex].dayOptions = this.getDayOptions(newValue)
       this.monthDayPairs[pairIndex].isDisabled = false
     }
-    // console.log(JSON.stringify(this.monthDayPairs))
 
     this.addDummyPair()
     this.dispatchNewMonthDayPairsList()
@@ -113,7 +109,6 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
       dummyPair.index = lastIndex + 1
       monthDayPairs.push(dummyPair)
       this.monthDayPairs = [...monthDayPairs]
-      console.log(JSON.stringify(this.monthDayPairs))
     }
   }
 
@@ -142,6 +137,6 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
 
     console.log('dispatchNewMonthDayPairsList ', JSON.stringify(newMonthDayPairsList))
 
-    this.dispatchEvent(new CustomEvent('change', { detail: { newList: newMonthDayPairsList } }))
+    this.dispatchEvent(new CustomEvent('change', { detail: { newMonthDayPairsList } }))
   }
 }

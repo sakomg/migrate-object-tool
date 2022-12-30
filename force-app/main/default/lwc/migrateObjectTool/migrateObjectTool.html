@@ -53,23 +53,24 @@
                     <div class="drop-icon"></div>
                     <c-combobox
                       name="sObject"
-                      label="From Object"
+                      label="From Object (sObject)"
                       value=""
-                      placeholder="Choose sObject"
+                      placeholder="None"
                       options={sObjectNameOptions}
                       onchange={handleSObjectChange}
                     >
                     </c-combobox>
                     <c-combobox
                       name="bObject"
-                      label="To Object"
+                      label="To Object (Big Object)"
                       value=""
-                      placeholder="Choose Big Object"
+                      placeholder="None"
                       options={bigObjectNameOptions}
                       onchange={handleBigObjectChange}
                     >
                     </c-combobox>
                     <div class="delete-icon"></div>
+                    <div class="indicator-icon"></div>
                   </div>
                 </div>
               </div>
@@ -89,6 +90,7 @@
                     <p class="slds-form-element__label">From Field</p>
                     <p class="slds-form-element__label">To Field</p>
                     <div class="delete-icon"></div>
+                    <div class="indicator-icon"></div>
                   </div>
 
                   <template for:each={fieldPairs} for:item="pair" for:index="idx">
@@ -135,6 +137,7 @@
                       <div class={styleAfterQuery}>{messageAfterQuery}</div>
                     </div>
                     <div class="delete-icon"></div>
+                    <div class="indicator-icon"></div>
                   </div>
                 </div>
               </div>

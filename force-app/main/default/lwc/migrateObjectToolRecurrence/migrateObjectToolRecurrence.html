@@ -12,7 +12,8 @@
                 name="startTime"
                 label="Start"
                 required
-                value="18:30:00.000Z"
+                value={selectedMigrateTime}
+                onchange={handleMigrateTimeChange}
               ></lightning-input>
             </div>
           </div>
@@ -89,7 +90,7 @@
               <div class="slds-col slds-size_12-of-12">Month(s):</div>
               <c-migrate-object-tool-recurrence-yearly
                 onchange={handleMonthDayPairsChange}
-                month-day-pairs-list={monthDayPairsList}
+                month-day-pairs-list={selectedMonthDayPairs}
               ></c-migrate-object-tool-recurrence-yearly>
             </div>
           </div>
