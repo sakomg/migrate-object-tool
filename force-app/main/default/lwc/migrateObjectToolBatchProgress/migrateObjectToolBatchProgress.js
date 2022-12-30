@@ -1,22 +1,43 @@
-import { LightningElement, track } from 'lwc'
+import { LightningElement } from 'lwc'
 import { subscribe, unsubscribe } from 'lightning/empApi'
 
 export default class MigrateObjectToolBatchProgress extends LightningElement {
   channelName = '/event/Batch_Process__e'
-  @track recordsProcessed = 0
-  totalRecords = 100
+  totalChunks = 0
+  processedChunks = 0
   subscription = {}
 
   get processedPercent() {
-    return (this.recordsProcessed / this.totalRecords) * 100
+    if (this.totalChunks === 0) {
+      return 0
+    }
+    return (this.processedChunks / this.totalChunks) * 100
   }
 
   get statusStyle() {
-    return this.recordsProcessed === 0 ? 'slds-badge' : 'slds-badge slds-theme_success'
+    if (this.processedChunks === 0) {
+      return 'slds-badge'
+    }
+    if (this.processedChunks === this.totalChunks) {
+      return 'slds-badge slds-theme_success'
+    }
+    if (this.processedChunks > 0) {
+      return 'slds-badge_lightest'
+    }
+    return ''
   }
 
   get statusValue() {
-    return this.recordsProcessed === 0 ? 'InActive' : 'Active'
+    if (this.processedChunks === 0) {
+      return 'In Active'
+    }
+    if (this.processedChunks === this.totalChunks) {
+      return 'Done'
+    }
+    if (this.processedChunks > 0) {
+      return 'In Progress'
+    }
+    return ''
   }
 
   connectedCallback() {
@@ -30,7 +51,9 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
   handleSubscribe() {
     const replyId = -1
     const messageCallback = (response) => {
-      this.updateRecordValue(response.data.payload.Count__c)
+      console.log(JSON.stringify(response.data))
+      const { Chunks_Total__c, Chunks_Processed__c } = response.data.payload
+      this.updateRecordValue(Chunks_Total__c, Chunks_Processed__c)
     }
 
     subscribe(this.channelName, replyId, messageCallback).then((response) => {
@@ -39,8 +62,9 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
     })
   }
 
-  updateRecordValue(count) {
-    this.recordsProcessed = count
+  updateRecordValue(total, processed) {
+    this.totalChunks = total
+    this.processedChunks = processed + 1
   }
 
   handleUnsubscribe() {

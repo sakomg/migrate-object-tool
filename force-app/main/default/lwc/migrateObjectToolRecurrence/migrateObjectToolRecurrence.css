@@ -1,3 +1,6 @@
 :host {
   --slds-c-global-header-color-background: inherit;
 }
+.min-height {
+  min-height: 200px;
+}

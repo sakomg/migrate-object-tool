@@ -1,9 +1,9 @@
 public without sharing class MigrateCustomObjectController {
   @AuraEnabled
-  public static void processMigrate(String sObjectName, String bigObjectName, Map<String, String> fieldMapping) {
+  public static void processMigrate(String sObjectName, String bigObjectName, String query, Map<String, String> fieldMapping) {
     try {
-      MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, fieldMapping);
-      Database.executeBatch(new MigrateCustomObjectBatch(service), 2000);
+      MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
+      Database.executeBatch(new MigrateCustomObjectBatch(service), 1);
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
@@ -19,7 +19,8 @@ public without sharing class MigrateCustomObjectController {
       ' KeyPrefix, IsCustomSetting, IsDeprecatedAndHidden, IsTriggerable, ' +
       ' IsIdEnabled, IsEverCreatable, IsEverUpdatable, IsFeedEnabled, IsQueryable ' +
       ' FROM EntityDefinition ' +
-      ' WHERE IsCustomizable = true ';
+      ' WHERE IsCustomizable = true ' +
+      ' AND IsQueryable = true ';
 
     if (objectType == 'big_object') {
       // TODO: add enum

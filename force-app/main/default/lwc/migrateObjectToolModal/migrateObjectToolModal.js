@@ -1,48 +1,34 @@
 import { api } from 'lwc'
 import LightningModal from 'lightning/modal'
+import { deepCopy } from 'c/utilsPrivate'
 
 export default class MigrateObjectToolModal extends LightningModal {
   @api targetData
 
-  handleModalCancel() {
-    this.close('canceled')
+  data = {}
+
+  connectedCallback() {
+    this.data = deepCopy(this.targetData)
+    console.log(this.data)
   }
 
-  async handleModalSave() {
-    console.log(this.targetData)
-    if (this.isValid()) {
-      // begin saving data
-      this.disableClose = true
-      await this.saveData()
-    } else {
-      // function that display form errors based on data
-      this.showFormErrors()
-    }
+  handleModalClose() {
+    this.closeModal(undefined)
   }
 
-  handleModalSelect() {
-    // for test
-    this.dispatchEvent(
-      new CustomEvent('select', {
-        detail: {
-          id: 42
-        }
-      })
-    )
+  async handleModalExecute() {
+    this.disableClose = true
+    this.closeModal('execute')
   }
 
-  isValid() {
-    return true
+  handleOpenStep(event) {
+    const step = event.currentTarget.dataset.step
+    this.closeModal(step)
+    console.log(step)
   }
 
-  showFormErrors() {}
-
-  closeModal() {
+  closeModal(message) {
     this.disableClose = false
-    this.close('success')
-  }
-
-  async saveData() {
-    return this.closeModal()
+    this.close(message)
   }
 }

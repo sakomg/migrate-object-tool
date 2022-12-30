@@ -1,12 +1,14 @@
 public without sharing class MigrateCustomObjectService implements MigrateCustomObject {
   private final String sObjectName;
   private final String bigObjectName;
+  private final String query;
   private final Map<String, String> fieldMapping;
   private final Map<String, Schema.SObjectField> fieldsDescibe;
 
-  public MigrateCustomObjectService(String sObjectName, String bigObjectName, Map<String, String> fieldMapping) {
+  public MigrateCustomObjectService(String sObjectName, String bigObjectName, String query, Map<String, String> fieldMapping) {
     this.sObjectName = sObjectName;
     this.bigObjectName = bigObjectName;
+    this.query = query;
     this.fieldMapping = fieldMapping;
     this.fieldsDescibe = Utils.getFieldsByObjectName(sObjectName);
   }
@@ -23,17 +25,15 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
     return this.fieldMapping;
   }
 
-  public String generateQuery(Integer additionalMonths) {
+  public String generateQuery() {
     Set<String> fields = this.fieldsDescibe.keySet();
-    String query =
-      'SELECT ' +
-      String.join(new List<String>(fields), ', ') +
-      ' FROM ' +
-      this.sObjectName +
-      ' WHERE CreatedDate < LAST_N_MONTHS:' +
-      String.valueOf(additionalMonths);
+    String finalQuery = null;
 
-    return query;
+    if (String.isNotBlank(this.query)) {
+      finalQuery = this.query.replace('COUNT()', String.join(new List<String>(fields), ', ')); // FIXME
+    }
+
+    return finalQuery;
   }
 
   public List<SObject> processMigrate(List<SObject> customObjectRecords) {

@@ -12,6 +12,10 @@ public without sharing class Utils {
       return false;
     }
 
+    if (Constants.SYSTEM_FIELDS.contains(describe.getName())) {
+      return false;
+    }
+
     return true;
   }
 }

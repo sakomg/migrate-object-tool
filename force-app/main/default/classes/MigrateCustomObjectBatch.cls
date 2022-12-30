@@ -16,8 +16,8 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
   }
 
   public Database.QueryLocator start(Database.BatchableContext context) {
-    Integer additionalMonths = 2;
-    String query = this.service.generateQuery(additionalMonths);
+    String query = this.service.generateQuery();
+    this.logger.log('Query: ' + query);
     return Database.getQueryLocator(query);
   }
 
@@ -82,15 +82,17 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
         }
 
         if (!customObjectsToDelete.isEmpty()) {
-          delete customObjectsToDelete;
+          Database.delete(customObjectsToDelete, false);
         }
       }
-      this.publishEventToBar(context);
+      this.logger.insertLog(MigrateCustomObjectLogger.Status.SUCCESS, 'OK');
     } catch (Exception e) {
       this.logger.insertLog(
         MigrateCustomObjectLogger.Status.ERROR,
         'Error cause: ' + e.getMessage() + ' | ' + e.getStackTraceString()
       );
+    } finally {
+      this.publishEventToBar(context);
     }
   }
 
@@ -99,7 +101,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
     this.logger.insertLog(MigrateCustomObjectLogger.Status.DONE, finishedMessage);
   }
 
-  private void publishEventToBar(Database.BatchableContext context) {
+  private Database.SaveResult publishEventToBar(Database.BatchableContext context) {
     Batch_Process__e bpEvent = new Batch_Process__e();
 
     AsyncApexJob job = [
@@ -110,10 +112,13 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
 
     bpEvent.Batch_Id__c = context.getJobId();
     bpEvent.Apex_Class__c = String.valueOf(this).substring(0, String.valueOf(this).indexOf(':'));
-    bpEvent.Count__c = Integer.valueOf(job.JobItemsProcessed);
+    bpEvent.Chunks_Total__c = Integer.valueOf(job.TotalJobItems);
+    bpEvent.Chunks_Processed__c = Integer.valueOf(job.JobItemsProcessed);
     bpEvent.Object_Name__c = this.service.getSObjectName();
     bpEvent.Big_Object_Name__c = this.service.getBigObjectName();
 
-    Database.SaveResult results = EventBus.publish(bpEvent);
+    Database.SaveResult result = EventBus.publish(bpEvent);
+
+    return result;
   }
 }

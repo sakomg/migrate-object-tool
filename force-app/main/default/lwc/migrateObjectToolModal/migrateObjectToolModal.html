@@ -1,11 +1,232 @@
 <template>
-  <lightning-modal-header label="Migration setup"></lightning-modal-header>
+  <lightning-modal-header label="Summary"></lightning-modal-header>
   <lightning-modal-body>
-    <lightning-input type="text" onclick={handleModalSelect} value="test"></lightning-input>
-    Content: {content}
+    <ul class="slds-timeline">
+      <li>
+        <div class="slds-timeline__item_expandable slds-is-open">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <button class="slds-button slds-button_icon" title="">
+                <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
+                  <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
+                </svg>
+                <span class="slds-assistive-text">expand step 1</span>
+              </button>
+              <div class="slds-icon_container" title="step-1">
+                <lightning-icon icon-name="utility:label"></lightning-icon>
+              </div>
+            </div>
+            <div class="slds-media__body">
+              <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                <div class="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
+                  <h3 class="slds-truncate" title="Choose objects to transfer data.">
+                    <a onclick={handleOpenStep} data-step="step-1">
+                      <strong>Step 1</strong>
+                    </a>
+                  </h3>
+                </div>
+              </div>
+              <p class="slds-m-horizontal_xx-small">Choose objects to transfer data.</p>
+              <article
+                class="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small slds-p-around_medium"
+                aria-hidden="false"
+              >
+                <ul class="slds-list_horizontal slds-wrap">
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">Standard/Custom Object:</span>
+                    <span class="slds-text-body_medium slds-truncate" title={data.objectName}>
+                      <strong>{data.objectName}</strong>
+                    </span>
+                  </li>
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">Big Object:</span>
+                    <span class="slds-text-body_medium slds-truncate" title={data.bigObjectName}>
+                      <strong>{data.bigObjectName}</strong>
+                    </span>
+                  </li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="slds-timeline__item_expandable slds-is-open">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <button class="slds-button slds-button_icon" title="">
+                <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
+                  <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
+                </svg>
+                <span class="slds-assistive-text">expand step 2</span>
+              </button>
+              <div class="slds-icon_container" title="step-2">
+                <lightning-icon icon-name="utility:label"></lightning-icon>
+              </div>
+            </div>
+            <div class="slds-media__body">
+              <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                <div class="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
+                  <h3 class="slds-truncate" title="Choose fields to transfer data.">
+                    <a onclick={handleOpenStep} data-step="step-2">
+                      <strong>Step 2</strong>
+                    </a>
+                  </h3>
+                </div>
+              </div>
+              <p class="slds-m-horizontal_xx-small">Choose fields to transfer data.</p>
+              <article
+                class="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small slds-p-around_medium"
+                aria-hidden="false"
+              >
+                <!-- <ul class="slds-list_horizontal slds-wrap">
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">{data.objectName} field</span>
+                  </li>
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">{data.bigObjectName} field</span>
+                  </li>
+                </ul> -->
+                <template for:each={data.fields} for:item="item">
+                  <ul key={item.index} class="slds-list_horizontal slds-wrap">
+                    <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
+                      <span class="slds-text-body_medium slds-truncate" title={item.soField}> {item.soField} </span>
+                    </li>
+                    <li class="slds-grid slds-grid_vertical slds-size_2-of-8 slds-p-bottom_small">
+                      <span class="slds-text-body_medium slds-truncate"
+                        ><lightning-icon icon-name="utility:product_transfer" size="small"></lightning-icon
+                      ></span>
+                    </li>
+                    <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
+                      <span class="slds-text-body_medium slds-truncate" title={item.boField}> {item.boField} </span>
+                    </li>
+                  </ul>
+                </template>
+              </article>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="slds-timeline__item_expandable slds-is-open">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <button class="slds-button slds-button_icon" title="">
+                <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
+                  <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
+                </svg>
+                <span class="slds-assistive-text">expand step 3</span>
+              </button>
+              <div class="slds-icon_container" title="step-3">
+                <lightning-icon icon-name="utility:label"></lightning-icon>
+              </div>
+            </div>
+            <div class="slds-media__body">
+              <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                <div class="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
+                  <h3 class="slds-truncate" title="Conditions to fetch Custom Object records.">
+                    <a onclick={handleOpenStep} data-step="step-3">
+                      <strong>Step 3</strong>
+                    </a>
+                  </h3>
+                  <div class="slds-no-flex">
+                    <span class="slds-icon_container slds-icon-utility-automate">
+                      <svg class="slds-icon slds-icon_xx-small slds-icon-text-default slds-m-left_x-small" aria-hidden="true">
+                        <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#automate"></use>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p class="slds-m-horizontal_xx-small">Conditions to fetch Custom Object records.</p>
+              <article
+                class="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small slds-p-around_medium"
+                id="email-item-expanded-35"
+                aria-hidden="false"
+              >
+                <ul class="slds-list_horizontal slds-wrap">
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">Query:</span>
+                    <span class="slds-text-body_medium slds-truncate" title={data.query}>{data.query}</span>
+                  </li>
+                </ul>
+                <div>
+                  <span class="slds-text-title">Total records:</span>
+                  <p class="slds-p-top_x-small">{data.totalRecords}</p>
+                </div>
+                <!-- <button class="slds-button slds-button_neutral slds-m-top_small">
+                  <svg class="slds-button__icon slds-button__icon_left" aria-hidden="true">
+                    <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#world"></use></svg
+                  >Dev Console
+                </button> -->
+              </article>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="slds-timeline__item_expandable slds-is-open">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <button class="slds-button slds-button_icon" title="">
+                <svg class="slds-button__icon slds-timeline__details-action-icon" aria-hidden="true">
+                  <use xlink:href="/_slds/icons/utility-sprite/svg/symbols.svg#switch"></use>
+                </svg>
+                <span class="slds-assistive-text">expand step 4</span>
+              </button>
+              <div class="slds-icon_container" title="step-4">
+                <lightning-icon icon-name="utility:label"></lightning-icon>
+              </div>
+            </div>
+            <div class="slds-media__body">
+              <div class="slds-grid slds-grid_align-spread slds-timeline__trigger">
+                <div class="slds-grid slds-grid_vertical-align-center slds-truncate_container_75 slds-no-space">
+                  <h3 class="slds-truncate" title="Migration Recurrence.">
+                    <a onclick={handleOpenStep} data-step="step-4">
+                      <strong>Step 4</strong>
+                    </a>
+                  </h3>
+                </div>
+              </div>
+              <p class="slds-m-horizontal_xx-small">Migration Recurrence.</p>
+              <article
+                class="slds-box slds-timeline__item_details slds-theme_shade slds-m-top_x-small slds-m-horizontal_xx-small slds-p-around_medium"
+                id="event-item-expanded-36"
+                aria-hidden="false"
+              >
+                <ul class="slds-list_horizontal slds-wrap">
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">Location</span>
+                    <span class="slds-text-body_medium slds-truncate" title="Westen St. Francis, San Francisco, CA, 94622">
+                      <a href="#">Westen St. Francis, San Francisco, CA, 94622</a>
+                    </span>
+                  </li>
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">Attendees</span>
+                    <span class="slds-text-body_medium slds-truncate" title="Jason Dewar (Organizer) + 5 others">
+                      <a href="#">Jason Dewar (Organizer) + 5 others</a>
+                    </span>
+                  </li>
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <span class="slds-text-title slds-p-bottom_x-small">When</span>
+                    <span class="slds-text-body_medium slds-truncate" title="March 26, 10:00 AM - 11:00 AM">
+                      <a href="#">March 26, 10:00 AM - 11:00 AM</a>
+                    </span>
+                  </li>
+                </ul>
+                <div>
+                  <span class="slds-text-title">Description</span>
+                  <p class="slds-p-top_x-small">Let&#x27;s discuss the 2017 product roadmap and address any questions</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
   </lightning-modal-body>
   <lightning-modal-footer>
-    <lightning-button label="Cancel" onclick={handleModalCancel}></lightning-button>
-    <lightning-button label="Save" onclick={handleModalSave} variant="brand" class="slds-m-left_medium"></lightning-button>
+    <lightning-button label="Cancel" onclick={handleModalClose}></lightning-button>
+    <lightning-button label="Execute" onclick={handleModalExecute} variant="brand" class="slds-m-left_small"></lightning-button>
   </lightning-modal-footer>
 </template>

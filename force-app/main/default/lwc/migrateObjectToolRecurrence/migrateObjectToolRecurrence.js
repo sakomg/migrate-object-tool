@@ -11,6 +11,8 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
   daysNumberOptions = []
   toSaveSelectedWeekDays = false
 
+  monthDayPairsList = []
+
   get periodOptions() {
     return [
       { label: 'Daily', value: 'Daily' },
@@ -97,5 +99,18 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     const rangeIndex = Number(index)
 
     this.daysNumberOptions[rangeIndex].selectedDaysNumber = selectedDaysNumber
+  }
+
+  handleMonthDayPairsChange(event) {
+    event.stopPropagation()
+    event.preventDefault()
+    let tmpMonthDayPairsList = []
+    tmpMonthDayPairsList = event.detail.newList
+
+    console.log(JSON.stringify(event.detail))
+
+    console.log('handleMonthDayPairsChange tmpMonthDayPairsList', JSON.stringify(tmpMonthDayPairsList))
+    this.monthDayPairsList = tmpMonthDayPairsList
+    console.log('handleMonthDayPairsChange monthDayPairsList', JSON.stringify(this.monthDayPairsList))
   }
 }

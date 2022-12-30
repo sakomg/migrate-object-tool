@@ -1,6 +1,21 @@
-import { LightningElement, track } from 'lwc'
+import { LightningElement, api, track } from 'lwc'
 
 export default class MigrateObjectToolRecurrenceYearly extends LightningElement {
+  @api
+  monthDayPairsList = []
+  @track
+  monthDayPairs = []
+
+  dummyMonthDayPair = {
+    index: 0,
+    month: '',
+    day: '',
+    dayOptions: [],
+    isDisabled: true,
+    toShowDeleteButton: false
+    // toShowDropButton: false
+  }
+
   monthOptions = [
     { label: 'January', value: 1 },
     { label: 'February', value: 2 },
@@ -16,25 +31,44 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
     { label: 'December', value: 12 }
   ]
 
-  //   @track bigObjectNameOptions = []
-  @track monthDayPairs = []
-  @track dummyMonthDayPair = {
-    index: 0,
-    month: '',
-    day: '',
-    dayOptions: [],
-    isDisabled: true,
-    toShowDeleteButton: false
-    // toShowDropButton: false
+  connectedCallback() {
+    this.monthDayPairs = this.prepareMonthDayPairs()
+    this.addDummyPair()
   }
 
-  connectedCallback() {
-    this.monthDayPairs.push({ ...this.dummyMonthDayPair })
+  prepareMonthDayPairs() {
+    const tmpMonthDayPairs = []
+    if (!this.monthDayPairsList.length) {
+      tmpMonthDayPairs.push({ ...this.dummyMonthDayPair })
+      return tmpMonthDayPairs
+    }
+
+    for (let i = 0; i < this.monthDayPairsList.length; i++) {
+      const tmpPair = { ...this.dummyMonthDayPair }
+
+      tmpPair.index = i
+      tmpPair.month = this.monthDayPairsList[i].month
+      tmpPair.day = this.monthDayPairsList[i].day
+
+      if (tmpPair.day) {
+        tmpPair.toShowDeleteButton = true
+      }
+
+      tmpPair.dayOptions = this.getDayOptions(tmpPair.month)
+      tmpPair.isDisabled = false
+
+      tmpMonthDayPairs.push(tmpPair)
+    }
+
+    return tmpMonthDayPairs
   }
 
   handleYearlyPairChange(event) {
+    event.stopPropagation()
+    event.preventDefault()
+
     const newValue = Number(event.detail.value)
-    const pairIndex = event.currentTarget.dataset.pairIndex
+    const pairIndex = Number(event.currentTarget.dataset.pairIndex)
     const property = event.currentTarget.dataset.property
     console.log('newValue', newValue)
     console.log('pairIndex', pairIndex)
@@ -46,8 +80,10 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
       this.monthDayPairs[pairIndex].dayOptions = this.getDayOptions(newValue)
       this.monthDayPairs[pairIndex].isDisabled = false
     }
+    // console.log(JSON.stringify(this.monthDayPairs))
 
-    this.addDummyPair(pairIndex)
+    this.addDummyPair()
+    this.dispatchNewMonthDayPairsList()
   }
 
   getDayOptions(month) {
@@ -65,7 +101,7 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
     const monthDayPairs = [...this.monthDayPairs]
     const lastIndex = monthDayPairs.length - 1
     const pair = monthDayPairs[lastIndex]
-    console.log('pair ', pair)
+    console.log('pair ', JSON.stringify(pair))
 
     if (pair.month && pair.day) {
       const dummyPair = { ...this.dummyFieldPair }
@@ -77,26 +113,35 @@ export default class MigrateObjectToolRecurrenceYearly extends LightningElement 
       dummyPair.index = lastIndex + 1
       monthDayPairs.push(dummyPair)
       this.monthDayPairs = [...monthDayPairs]
-      console.log(this.monthDayPairs)
+      console.log(JSON.stringify(this.monthDayPairs))
     }
   }
 
   handleDeleteIconClick(event) {
     event.stopPropagation()
-    const pairIndex = Number(event.detail.pairIndex)
-    console.log('pairIndex ', pairIndex)
-    const fieldPairs = [...this.fieldPairs]
-    console.log('fieldPairs ', fieldPairs)
+    const pairIndex = Number(event.currentTarget.dataset.pairIndex)
 
-    const result = fieldPairs.filter((pair) => pair.index !== pairIndex)
-    console.log('result ', result)
+    const result = this.monthDayPairs.filter((pair) => pair.index !== pairIndex)
 
     for (let i = 0; i < result.length; i++) {
       result[i].index = i
     }
-    console.log('result ', result)
 
-    this.fieldPairs = [...result]
-    console.log('this.fieldPairs ', this.fieldPairs)
+    this.monthDayPairs = [...result]
+    this.dispatchNewMonthDayPairsList()
+  }
+
+  dispatchNewMonthDayPairsList() {
+    const newMonthDayPairsList = []
+
+    this.monthDayPairs.forEach((pair) => {
+      if (pair.month) {
+        newMonthDayPairsList.push({ month: pair.month, day: pair.day })
+      }
+    })
+
+    console.log('dispatchNewMonthDayPairsList ', JSON.stringify(newMonthDayPairsList))
+
+    this.dispatchEvent(new CustomEvent('change', { detail: { newList: newMonthDayPairsList } }))
   }
 }

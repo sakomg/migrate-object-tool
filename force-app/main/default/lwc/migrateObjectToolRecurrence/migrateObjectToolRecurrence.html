@@ -6,7 +6,14 @@
           <div class="slds-grid slds-grid_align-spread slds-p-bottom_small">
             <div class="">
               <p>Migrate time:</p>
-              <lightning-input type="time" name="startTime" label="Start" required value="18:30:00.000Z"></lightning-input>
+              <lightning-input
+                field-level-help="Migration start time"
+                type="time"
+                name="startTime"
+                label="Start"
+                required
+                value="18:30:00.000Z"
+              ></lightning-input>
             </div>
           </div>
         </div>
@@ -28,10 +35,12 @@
           </div>
         </div>
       </lightning-layout-item>
+
+      <!-- Daily/Weekly -->
       <lightning-layout-item padding="around-small" size="8" medium-device-size="8" if:true={isWeeklyPeriod}>
         <div class="page-section page-header slds-border_left">
-          <div class="slds-grid slds-grid_align-spread slds-p-left_small">
-            <div class="slds-form_horizontal slds-form slds-grid slds-wrap">
+          <div class="slds-grid slds-grid_align-spread slds-var-p-left_small">
+            <div class="slds-form_horizontal slds-form slds-grid slds-wrap min-height">
               <!-- <p>Recur every <lightning-input type="number" variant="label-hidden" name="input"></lightning-input> week(s) on:</p> -->
               <p>Week(s) on:</p>
               <lightning-checkbox-group
@@ -48,10 +57,11 @@
         </div>
       </lightning-layout-item>
 
+      <!-- Monthly -->
       <lightning-layout-item padding="around-small" size="8" medium-device-size="8" if:true={isMonthlyPeriod}>
         <div class="page-section page-header slds-border_left">
-          <div class="slds-grid slds-grid_align-spread slds-p-left_small">
-            <div class="slds-form slds-grid slds-wrap">
+          <div class="slds-grid slds-grid_align-spread slds-var-p-left_small">
+            <div class="slds-form slds-grid slds-wrap min-height">
               <div class="slds-col slds-size_12-of-12">Day(s):</div>
               <template for:each={daysNumberOptions} for:item="option" for:index="index">
                 <div key={option.label} class="">
@@ -71,24 +81,28 @@
         </div>
       </lightning-layout-item>
 
+      <!-- Yearly -->
       <lightning-layout-item padding="around-small" size="8" medium-device-size="8" if:true={isYearlyPeriod}>
         <div class="page-section page-header slds-border_left">
-          <div class="slds-grid slds-grid_align-spread slds-p-left_small">
-            <div class="slds-form slds-grid slds-wrap">
+          <div class="slds-grid slds-grid_align-spread slds-var-p-left_small">
+            <div class="slds-form slds-grid slds-wrap slds-grid_vertical-align-start min-height">
               <div class="slds-col slds-size_12-of-12">Month(s):</div>
-              <c-migrate-object-tool-recurrence-yearly></c-migrate-object-tool-recurrence-yearly>
+              <c-migrate-object-tool-recurrence-yearly
+                onchange={handleMonthDayPairsChange}
+                month-day-pairs-list={monthDayPairsList}
+              ></c-migrate-object-tool-recurrence-yearly>
             </div>
           </div>
         </div>
       </lightning-layout-item>
 
-      <lightning-layout-item padding="around-small" size="12">
+      <!-- <lightning-layout-item padding="around-small" size="12">
         <div class="page-section page-header">
           <div class="slds-grid slds-grid_align-spread">
             <div style="height: 500px" class="">Section 4</div>
           </div>
         </div>
-      </lightning-layout-item>
+      </lightning-layout-item> -->
     </lightning-layout>
   </div>
 </template>

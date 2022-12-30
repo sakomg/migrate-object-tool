@@ -1,9 +1,11 @@
 import { LightningElement, track } from 'lwc'
 import Modal from 'c/migrateObjectToolModal'
+import Confirm from 'lightning/confirm'
 import { Drag } from './utils'
 import getObjectNames from '@salesforce/apex/MigrateCustomObjectController.getObjectNames'
 import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 import checkQuery from '@salesforce/apex/MigrateCustomObjectController.checkQuery'
+import processMigrate from '@salesforce/apex/MigrateCustomObjectController.processMigrate'
 
 const CUSTOM_OBJECT = 'custom_object'
 const BIG_OBJECT = 'big_object'
@@ -19,7 +21,6 @@ export default class MigrateObjectTool extends LightningElement {
     toShowDeleteButton: false,
     toShowDropButton: false
   }
-
   @track loadingObj = {
     main: false,
     step1: false,
@@ -43,6 +44,8 @@ export default class MigrateObjectTool extends LightningElement {
     dataLength: [],
     success: null
   }
+
+  _conditionQueryValue = ''
 
   get messageAfterQuery() {
     if (this.responseUserQuery.success === null) {
@@ -68,6 +71,10 @@ export default class MigrateObjectTool extends LightningElement {
     if (this.currentSObjectName === null) {
       return ''
     }
+    if (this._conditionQueryValue) {
+      return this._conditionQueryValue
+    }
+
     return `SELECT COUNT() FROM ${this.currentSObjectName}`
   }
 
@@ -191,36 +198,73 @@ export default class MigrateObjectTool extends LightningElement {
     console.log(event.currentTarget.value)
   }
 
-  async handleSchedule(event) {
-    console.log(event.detail)
+  async handleExecute() {
+    const result = await Confirm.open({
+      message: 'Are you sure you want to execute migrate process?',
+      variant: 'default',
+      theme: 'info',
+      label: 'Execute a process'
+    })
+
+    if (result) {
+      this.processMigrate()
+    } else {
+      // cancel
+    }
+  }
+
+  async handleSummary() {
+    const dataToShow = {
+      objectName: this.currentSObjectName ?? 'None',
+      bigObjectName: this.currentBigObjectName ?? 'None',
+      fields: this.excludeDummyPair(this.fieldPairs),
+      query: this.conditionQueryValue,
+      totalRecords: this.responseUserQuery.success ? this.responseUserQuery.dataLength : 0
+    }
     const result = await Modal.open({
       size: 'small',
-      description: "Accessible description of modal's purpose",
-      targetData: 'Passed into content api',
-      onselect: (e) => {
-        // stop further propagation of the event
-        e.stopPropagation()
-        // hand off to separate function to process
-        // result of the event (see above in this example)
-        this.handleSelectEvent(e.detail)
-        // or proxy to be handled above by dispatching
-        // another custom event to pass on the event
-        // this.dispatchEvent(e);
-      }
+      description: 'Info',
+      targetData: dataToShow
     })
+
+    if (result === 'execute') {
+      this.processMigrate()
+    } else if (result) {
+      this.setActiveSection(result)
+    } else {
+      console.log('nothing', result)
+    }
+
     // if modal closed with X button, promise returns result = 'undefined'
     // if modal closed with OK button, promise returns result = 'okay'
     console.log('result modal', result)
   }
 
-  // Process the select event from within the modal
-  handleSelectEvent(detail) {
-    const { id, value } = detail
-    console.log(`select event fired elem with id ${id} and value: ${value}`)
+  excludeDummyPair(fieldPairs) {
+    return fieldPairs.filter((pair) => pair.soField !== '' && pair.boField !== '')
+  }
+
+  async processMigrate() {
+    const fieldMapping = this.fieldPairs
+      .filter((pair) => pair.soField !== '' || pair.boField !== '')
+      .reduce((pair, cur) => ({ ...pair, [cur.soField]: cur.boField }), {})
+
+    console.log(fieldMapping)
+    try {
+      await processMigrate({
+        sObjectName: this.currentSObjectName,
+        bigObjectName: this.currentBigObjectName,
+        query: this.conditionQueryValue,
+        fieldMapping: fieldMapping
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   handleInputUserQuery(event) {
     const value = event.detail.value
+    this._conditionQueryValue = value
     clearTimeout(this.queryTimeoutId)
     // eslint-disable-next-line @lwc/lwc/no-async-operation
     this.queryTimeoutId = setTimeout(() => this.checkQuery(value), 1500)
@@ -232,9 +276,8 @@ export default class MigrateObjectTool extends LightningElement {
     this.loadingObj.step3 = false
   }
 
-  handleSetActiveSection(sectionName) {
+  setActiveSection(sectionName) {
     const accordion = this.template.querySelector('.container-accordion')
-
     accordion.activeSectionName = sectionName
   }
 

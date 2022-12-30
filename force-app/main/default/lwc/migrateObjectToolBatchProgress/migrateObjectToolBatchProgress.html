@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="slds-p-bottom_x-small">
-      <span>Records processed:&nbsp;</span>
-      <strong>{recordsProcessed}&nbsp;</strong>
+    <div class="slds-p-bottom_small">
+      <span>Chunks processed:&nbsp;</span>
+      <strong>{processedChunks}&nbsp;</strong>
       <span class={statusStyle}>{statusValue}</span>
     </div>
     <lightning-progress-bar value={processedPercent} size="medium" variant="circular"></lightning-progress-bar>
