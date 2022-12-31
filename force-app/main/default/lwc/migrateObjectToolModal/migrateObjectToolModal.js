@@ -33,7 +33,7 @@ export default class MigrateObjectToolModal extends LightningModal {
 
     if (period === 'Yearly') {
       values.forEach((value) => {
-        result += `${value.day} ${MONTHS[value.month - 1]} | `
+        result += `${value.day} ${MONTHS[value.month - 1]}, `
       })
       result = result.slice(0, -2)
     }
@@ -45,7 +45,7 @@ export default class MigrateObjectToolModal extends LightningModal {
       result = days.join(', ')
     }
 
-    return result
+    return result || 'None'
   }
 
   connectedCallback() {
