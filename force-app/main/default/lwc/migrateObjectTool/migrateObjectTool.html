@@ -6,7 +6,7 @@
     </div>
 
     <div if:false={loadingObj.main}>
-      <header class="slds-theme_default slds-border_bottom slds-p-around_small" style="z-index: 1">
+      <header class="header-container slds-theme_default slds-border_bottom slds-p-around_small" style="z-index: 1">
         <lightning-button-icon-stateful
           icon-name="utility:toggle_panel_left"
           alternative-text="panel-left"
@@ -14,11 +14,21 @@
           variant="brand"
           onclick={handleTogglePanelLeft}
         ></lightning-button-icon-stateful>
+        <div class="slds-float_right">
+          <lightning-button variant="brand-outline" label="Summary" title="Summary" onclick={handleSummary}></lightning-button>
+          <lightning-button
+            variant="brand"
+            label="Execute"
+            title="Execute"
+            onclick={handleExecute}
+            class="slds-m-left_small"
+          ></lightning-button>
+        </div>
       </header>
-      <div style="background-color: #fafaf9; position: relative; overflow: hidden; display: flex">
+      <div class="slds-grid body">
         <template if:true={openPanelLeft}>
           <div
-            class="slds-panel slds-size_medium slds-panel_docked slds-panel_docked-left slds-panel_drawer slds-is-open"
+            class="slds-panel slds-size_medium slds-panel_docked slds-panel_docked-left slds-is-open panel-custom"
             aria-hidden="false"
           >
             <div class="slds-panel__header">
@@ -155,16 +165,6 @@
             </lightning-accordion-section>
           </lightning-accordion>
           <!-- <div class="slds-align_absolute-center"> -->
-          <div class="slds-float_right slds-p-right_small">
-            <lightning-button variant="brand-outline" label="Summary" title="Summary" onclick={handleSummary}></lightning-button>
-            <lightning-button
-              variant="brand"
-              label="Execute"
-              title="Execute"
-              onclick={handleExecute}
-              class="slds-m-left_small"
-            ></lightning-button>
-          </div>
         </div>
       </div>
     </div>

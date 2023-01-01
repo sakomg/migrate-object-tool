@@ -8,7 +8,8 @@ const ACCEPTABLE_TYPES = {
   DOUBLE: ['STRING'],
   PHONE: ['STRING'],
   CURRENCY: ['STRING'],
-  PICKLIST: ['STRING']
+  PICKLIST: ['STRING'],
+  REFERENCE: ['STRING']
 }
 
 export default class MigrateObjectToolFieldPair extends LightningElement {

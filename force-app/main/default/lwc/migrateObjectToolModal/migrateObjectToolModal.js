@@ -31,6 +31,15 @@ export default class MigrateObjectToolModal extends LightningModal {
 
     const { selectedValues: values, period } = this.data.recurrenceSetup
 
+    return this.getDisplayDays(result, values, period)
+  }
+
+  connectedCallback() {
+    this.data = deepCopy(this.targetData)
+    console.log(this.data)
+  }
+
+  getDisplayDays(result, values, period) {
     if (period === 'Yearly') {
       values.forEach((value) => {
         result += `${value.day} ${MONTHS[value.month - 1]}, `
@@ -46,11 +55,6 @@ export default class MigrateObjectToolModal extends LightningModal {
     }
 
     return result || 'None'
-  }
-
-  connectedCallback() {
-    this.data = deepCopy(this.targetData)
-    console.log(this.data)
   }
 
   handleModalClose() {

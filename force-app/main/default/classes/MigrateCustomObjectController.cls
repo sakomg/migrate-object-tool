@@ -1,9 +1,34 @@
 public without sharing class MigrateCustomObjectController {
+  private final static MigrateCustomObjectValidator VALIDATOR;
+
+  static {
+    VALIDATOR = new MigrateCustomObjectValidator();
+  }
+
   @AuraEnabled
-  public static void processMigrate(String sObjectName, String bigObjectName, String query, Map<String, String> fieldMapping) {
+  public static void processMigrate(
+    String sObjectName,
+    String bigObjectName,
+    String query,
+    Map<String, String> fieldMapping,
+    String recurrence
+  ) {
     try {
-      MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
-      Database.executeBatch(new MigrateCustomObjectBatch(service), 1);
+      System.debug('raw: ' + recurrence);
+      if (VALIDATOR.validateMigrateParams(sObjectName, bigObjectName, query, fieldMapping, recurrence)) {
+        Models.RecurrenceWrapper recurrenceWrapper = (Models.RecurrenceWrapper) JSON.deserialize(
+          recurrence,
+          Models.RecurrenceWrapper.class
+        );
+        String className = recurrenceWrapper.getClassName();
+        String data = recurrenceWrapper.getPayload();
+        Models.RecurrenceData recurrenceData = (Models.RecurrenceData) JSON.deserialize(data, Type.forName(className));
+        System.debug('recurrenceData: ' + recurrenceData);
+        String cron = recurrenceData.getCron();
+        System.debug('cron: ' + cron);
+        // MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
+        // Database.executeBatch(new MigrateCustomObjectBatch(service), 1);
+      }
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }

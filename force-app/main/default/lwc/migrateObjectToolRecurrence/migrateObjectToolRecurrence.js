@@ -112,15 +112,13 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
 
   handleMigrateTimeChange(event) {
     this.selectedMigrateTime = event.detail.value
-    console.log('this.selectedMigrateTime ', this.selectedMigrateTime)
   }
 
   @api
   getRecurrenceSetupData() {
-    console.log('getRecurrenceSetupData')
     let recurrenceSetupData = {}
     recurrenceSetupData.period = this.selectedPeriod
-    recurrenceSetupData.time = this.selectedMigrateTime
+    recurrenceSetupData.migrateTime = this.selectedMigrateTime
 
     switch (this.selectedPeriod) {
       case 'Daily':
@@ -142,7 +140,6 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
   }
 
   extractSelectedDaysNumber() {
-    console.log(this.daysNumberOptions)
     let selectedDaysNumber = []
     this.daysNumberOptions.forEach((element) => {
       selectedDaysNumber = selectedDaysNumber.concat(element.selectedDaysNumber)

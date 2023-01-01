@@ -10,6 +10,13 @@ import processMigrate from '@salesforce/apex/MigrateCustomObjectController.proce
 const CUSTOM_OBJECT = 'custom_object'
 const BIG_OBJECT = 'big_object'
 
+const TIME_PERIOD_TO_CLASS = {
+  Daily: 'Models.RecurrenceDataDaily',
+  Weekly: 'Models.RecurrenceDataWeekly',
+  Monthly: 'Models.RecurrenceDataMonthly',
+  Yearly: 'Models.RecurrenceDataYearly'
+}
+
 export default class MigrateObjectTool extends LightningElement {
   @track sObjectNameOptions = []
   @track bigObjectNameOptions = []
@@ -90,6 +97,9 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   connectedCallback() {
+    window.addEventListener('scroll', () => {
+      this.setStickyHeader()
+    })
     this.fieldPairs.push({ ...this.dummyFieldPair })
 
     let promises = []
@@ -97,7 +107,20 @@ export default class MigrateObjectTool extends LightningElement {
     promises.push(this._getSObjectNames())
     promises.push(this._getBigObjectNames())
 
-    Promise.all(promises).finally(() => (this.loadingObj.main = false))
+    Promise.all(promises).finally(() => {
+      this.loadingObj.main = false
+    })
+  }
+
+  setStickyHeader() {
+    const top = window.pageYOffset || document.documentElement.Top
+    const header = this.template.querySelector('.header-container')
+
+    if (top > 12) {
+      header.classList.add('sticky')
+    } else {
+      header.classList.remove('sticky')
+    }
   }
 
   async _getSObjectNames() {
@@ -144,17 +167,17 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   handleObjectFieldChange(event) {
-    console.log(s(event.detail))
-    const newValue = event.detail.newValue
-    const pairIndex = event.detail.pairIndex
-    const property = event.detail.property
-    console.log('soFieldValue', newValue)
-    console.log('pairIndex', pairIndex)
-    console.log('property', property)
+    const { newValue, pairIndex, property } = event.detail
 
     this.fieldPairs[pairIndex][property] = newValue
+    const pair = this.fieldPairs[pairIndex]
 
-    this.addDummyPair(pairIndex)
+    if (pair.soField.length && pair.boField.length) {
+      pair.soFieldType = this.soFieldOptions.find((option) => option.value === pair.soField)?.type
+      pair.boFieldType = this.boFieldOptions.find((option) => option.value === pair.boField)?.type
+    }
+
+    this.addDummyPair()
   }
 
   addDummyPair() {
@@ -167,8 +190,7 @@ export default class MigrateObjectTool extends LightningElement {
       fieldPairs[lastIndex].toShowDeleteButton = true
       fieldPairs[lastIndex].toShowDropButton = true
       fieldPairs[lastIndex].toShowValidIndicator = true
-      fieldPairs[lastIndex].soFieldType = this.soFieldOptions.find((option) => option.value === pair.soField)?.type
-      fieldPairs[lastIndex].boFieldType = this.boFieldOptions.find((option) => option.value === pair.boField)?.type
+
       dummyPair.index = lastIndex + 1
       fieldPairs.push(dummyPair)
       this.fieldPairs = [...fieldPairs]
@@ -193,12 +215,19 @@ export default class MigrateObjectTool extends LightningElement {
     this.drag.end(e)
   }
 
-  handleOnchange(event) {
-    console.log('handleOnchange')
-    console.log(event.currentTarget.value)
+  formSummaryPayload(recurrenceData) {
+    return {
+      objectName: this.currentSObjectName || 'None',
+      bigObjectName: this.currentBigObjectName || 'None',
+      fields: this.excludeDummyPair(this.fieldPairs),
+      query: this.conditionQueryValue || 'None',
+      totalRecords: this.responseUserQuery.success ? this.responseUserQuery.dataLength : 0,
+      recurrenceSetup: recurrenceData
+    }
   }
 
   async handleExecute() {
+    const recurrenceData = this.recurrenceComponent.getRecurrenceSetupData()
     const result = await Confirm.open({
       message: 'Are you sure you want to execute migrate process?',
       variant: 'default',
@@ -207,32 +236,22 @@ export default class MigrateObjectTool extends LightningElement {
     })
 
     if (result) {
-      this.processMigrate()
+      this.processMigrate(recurrenceData)
     } else {
       // cancel
     }
   }
 
-  formSummaryPayload() {
-    return {
-      objectName: this.currentSObjectName || 'None',
-      bigObjectName: this.currentBigObjectName || 'None',
-      fields: this.excludeDummyPair(this.fieldPairs),
-      query: this.conditionQueryValue || 'None',
-      totalRecords: this.responseUserQuery.success ? this.responseUserQuery.dataLength : 0,
-      recurrenceSetup: this.recurrenceComponent.getRecurrenceSetupData()
-    }
-  }
-
   async handleSummary() {
+    const recurrenceData = this.recurrenceComponent.getRecurrenceSetupData()
     const result = await Modal.open({
       size: 'small',
       description: 'Info',
-      targetData: this.formSummaryPayload()
+      targetData: this.formSummaryPayload(recurrenceData)
     })
 
     if (result === 'execute') {
-      this.processMigrate()
+      this.processMigrate(recurrenceData)
     } else if (result) {
       this.setActiveSection(result)
     } else {
@@ -248,18 +267,29 @@ export default class MigrateObjectTool extends LightningElement {
     return fieldPairs.filter((pair) => pair.soField !== '' && pair.boField !== '')
   }
 
-  async processMigrate() {
+  async processMigrate(recurrenceData) {
     const fieldMapping = this.fieldPairs
       .filter((pair) => pair.soField !== '' || pair.boField !== '')
       .reduce((pair, cur) => ({ ...pair, [cur.soField]: cur.boField }), {})
 
-    console.log(fieldMapping)
+    console.log('recur', s(recurrenceData))
+
+    const className = TIME_PERIOD_TO_CLASS[recurrenceData.period]
+
+    const recurrence = {
+      className: className,
+      payload: JSON.stringify(recurrenceData)
+    }
+
+    console.log(recurrence)
+
     try {
       await processMigrate({
         sObjectName: this.currentSObjectName,
         bigObjectName: this.currentBigObjectName,
         query: this.conditionQueryValue,
-        fieldMapping: fieldMapping
+        fieldMapping: fieldMapping,
+        recurrence: JSON.stringify(recurrence)
       })
     } catch (error) {
       console.log(error)

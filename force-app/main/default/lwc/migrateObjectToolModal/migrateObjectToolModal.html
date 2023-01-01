@@ -32,13 +32,13 @@
                 aria-hidden="false"
               >
                 <ul class="slds-list_horizontal slds-wrap">
-                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2">
                     <span class="slds-text-title slds-p-bottom_x-small">Standard/Custom Object:</span>
                     <span class="slds-text-body_medium slds-truncate" title={data.objectName}>
                       <strong>{data.objectName}</strong>
                     </span>
                   </li>
-                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                  <li class="slds-grid slds-grid_vertical slds-size_1-of-2">
                     <span class="slds-text-title slds-p-bottom_x-small">Big Object:</span>
                     <span class="slds-text-body_medium slds-truncate" title={data.bigObjectName}>
                       <strong>{data.bigObjectName}</strong>
@@ -90,15 +90,15 @@
                 <template if:true={data.fields.length}>
                   <template for:each={data.fields} for:item="item">
                     <ul key={item.index} class="slds-list_horizontal slds-wrap">
-                      <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
+                      <li class="slds-grid slds-grid_vertical slds-size_3-of-8">
                         <span class="slds-text-body_medium slds-truncate" title={item.soField}> {item.soField} </span>
                       </li>
-                      <li class="slds-grid slds-grid_vertical slds-size_2-of-8 slds-p-bottom_small">
+                      <li class="slds-grid slds-grid_vertical slds-size_2-of-8">
                         <span class="slds-text-body_medium slds-truncate"
-                          ><lightning-icon icon-name="utility:jump_to_right" size="small"></lightning-icon
+                          ><lightning-icon icon-name="utility:forward" size="small"></lightning-icon
                         ></span>
                       </li>
-                      <li class="slds-grid slds-grid_vertical slds-size_3-of-8 slds-p-bottom_small">
+                      <li class="slds-grid slds-grid_vertical slds-size_3-of-8">
                         <span class="slds-text-body_medium slds-truncate" title={item.boField}> {item.boField} </span>
                       </li>
                     </ul>
@@ -106,7 +106,7 @@
                 </template>
                 <template if:false={data.fields.length}>
                   <ul class="slds-list_horizontal slds-wrap">
-                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
+                    <li class="slds-grid slds-grid_vertical slds-size_1-of-2">
                       <span class="slds-text-body_medium slds-truncate"
                         >Please complete the mapping fields in <a onclick={handleOpenStep} data-step="step-2">step 2</a>
                       </span>
@@ -213,8 +213,8 @@
                   </li>
                   <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">
                     <span class="slds-text-title slds-p-bottom_x-small">Time</span>
-                    <span class="slds-text-body_medium slds-truncate" title={data.recurrenceSetup.time}>
-                      <lightning-formatted-time value={data.recurrenceSetup.time}></lightning-formatted-time>
+                    <span class="slds-text-body_medium slds-truncate" title={data.recurrenceSetup.migrateTime}>
+                      <lightning-formatted-time value={data.recurrenceSetup.migrateTime}></lightning-formatted-time>
                     </span>
                   </li>
                   <!-- <li class="slds-grid slds-grid_vertical slds-size_1-of-2 slds-p-bottom_small">

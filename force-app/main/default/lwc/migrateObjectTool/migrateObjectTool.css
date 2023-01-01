@@ -1,6 +1,17 @@
 .container {
   min-height: 100%;
-  background-color: rgb(250, 250, 249);
+  background-color: #fafaf9;
+}
+
+.panel-custom {
+  height: inherit;
+  min-height: calc(100vh - 170px);
+}
+
+@media (max-width: 980px) {
+  .panel-custom {
+    min-height: calc(100vh - 220px);
+  }
 }
 
 h2 {
@@ -70,6 +81,14 @@ hr {
   margin-top: 15px;
 }
 
-.slds-panel_docked {
-  height: auto !important;
+.sticky {
+  position: fixed;
+  left: 0;
+  right: 0;
+  margin-top: -72px;
+  z-index: 100 !important;
+}
+
+.sticky + .body {
+  margin-top: 59px;
 }

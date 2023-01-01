@@ -70,4 +70,63 @@ public without sharing class Models {
       this.message = message;
     }
   }
+
+  public virtual class RecurrenceData {
+    String period;
+    Time migrateTime;
+
+    public virtual String getCron() {
+      return 'virtual';
+    }
+  }
+
+  public class RecurrenceDataDaily extends RecurrenceData {
+    List<String> selectedValues;
+
+    public override String getCron() {
+      return 'daily';
+    }
+  }
+
+  public class RecurrenceDataWeekly extends RecurrenceData {
+    List<String> selectedValues;
+
+    public override String getCron() {
+      return 'weekly';
+    }
+  }
+
+  public class RecurrenceDataMonthly extends RecurrenceData {
+    List<String> selectedValues;
+
+    public override String getCron() {
+      return 'monthly';
+    }
+  }
+
+  public class RecurrenceDataYearly extends RecurrenceData {
+    List<TimePeriod> selectedValues;
+
+    public override String getCron() {
+      return 'yearly';
+    }
+  }
+
+  public class TimePeriod {
+    Integer day;
+    Integer month;
+  }
+
+  public class RecurrenceWrapper {
+    private String className;
+    private String payload;
+
+    public String getClassName() {
+      return this.className;
+    }
+
+    public String getPayload() {
+      return this.payload;
+    }
+  }
 }
