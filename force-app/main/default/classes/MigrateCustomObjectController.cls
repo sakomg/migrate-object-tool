@@ -22,15 +22,16 @@ public without sharing class MigrateCustomObjectController {
         );
         String className = recurrenceWrapper.getClassName();
         String data = recurrenceWrapper.getPayload();
+        Integer chunkSize = 2000;
         Models.RecurrenceData recurrenceData = (Models.RecurrenceData) JSON.deserialize(data, Type.forName(className));
         System.debug('recurrenceData: ' + recurrenceData);
         String cron = recurrenceData.getCron();
         System.debug('cron: ' + cron);
-        // MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
-        // Database.executeBatch(new MigrateCustomObjectBatch(service), 1);
+        MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
+        System.schedule(className + ': ' + Datetime.now(), cron, new MigrateCustomObjectScheduler(service, chunkSize));
       }
     } catch (Exception e) {
-      throw new AuraHandledException(e.getMessage());
+      throw new AuraHandledException('Main issue. ' + e.getMessage());
     }
   }
 

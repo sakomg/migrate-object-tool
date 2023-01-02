@@ -72,19 +72,31 @@ public without sharing class Models {
   }
 
   public virtual class RecurrenceData {
+    String cron;
     String period;
     Time migrateTime;
 
     public virtual String getCron() {
-      return 'virtual';
+      return null;
+    }
+
+    private void setCron(List<Object> params) {
+      String seconds = String.valueOf(this.migrateTime.second());
+      String minutes = String.valueOf(this.migrateTime.minute());
+      String hours = String.valueOf(this.migrateTime.hour());
+      List<Object> times = new List<Object>{ seconds, minutes, hours };
+      times.addAll(params);
+      this.cron = String.format('{0} {1} {2} {3} {4} {5} {6}', times);
     }
   }
 
   public class RecurrenceDataDaily extends RecurrenceData {
-    List<String> selectedValues;
+    List<String> selectedValues; // [1,2,3,4,5,6,7]
 
     public override String getCron() {
-      return 'daily';
+      List<Object> params = new List<Object>{ '1/1', '*', '?', '*' };
+      this.setCron(params);
+      return this.cron;
     }
   }
 
@@ -92,7 +104,18 @@ public without sharing class Models {
     List<String> selectedValues;
 
     public override String getCron() {
-      return 'weekly';
+      List<String> selectedDayValues = new List<String>();
+
+      for (String value : this.selectedValues) {
+        String shortDay = Constants.DAY_BY_NUMBER.get(value);
+        if (shortDay != null) {
+          selectedDayValues.add(shortDay);
+        }
+      }
+
+      List<Object> params = new List<Object>{ String.join(selectedDayValues, ','), '*', '?', '*' };
+      this.setCron(params);
+      return this.cron;
     }
   }
 

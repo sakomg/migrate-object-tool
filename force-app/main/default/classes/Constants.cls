@@ -47,4 +47,14 @@ public with sharing class Constants {
     'AccountRollupId',
     'ProductIsArchived'
   };
+
+  public static final Map<String, String> DAY_BY_NUMBER = new Map<String, String>{
+    '1' => 'MON',
+    '2' => 'TUE',
+    '3' => 'WED',
+    '4' => 'THU',
+    '5' => 'FRI',
+    '6' => 'SAT',
+    '7' => 'SUN'
+  };
 }
