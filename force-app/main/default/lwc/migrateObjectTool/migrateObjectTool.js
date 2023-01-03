@@ -10,6 +10,9 @@ import processMigrate from '@salesforce/apex/MigrateCustomObjectController.proce
 const CUSTOM_OBJECT = 'custom_object'
 const BIG_OBJECT = 'big_object'
 
+const CREATE_NEW_BO_LINK = '/lightning/setup/BigObjects/home'
+const CREATE_NEW_SO_LINK = '/lightning/setup/ObjectManager/home'
+
 const TIME_PERIOD_TO_CLASS = {
   Daily: 'Models.RecurrenceDataDaily',
   Weekly: 'Models.RecurrenceDataWeekly',
@@ -18,8 +21,20 @@ const TIME_PERIOD_TO_CLASS = {
 }
 
 export default class MigrateObjectTool extends LightningElement {
-  @track sObjectNameOptions = []
-  @track bigObjectNameOptions = []
+  @track sObjectNameOptions = [
+    {
+      label: 'Create New',
+      value: CUSTOM_OBJECT,
+      iconName: 'utility:add'
+    }
+  ]
+  @track bigObjectNameOptions = [
+    {
+      label: 'Create New',
+      value: BIG_OBJECT,
+      iconName: 'utility:add'
+    }
+  ]
   @track fieldPairs = []
   @track dummyFieldPair = {
     index: 0,
@@ -127,7 +142,7 @@ export default class MigrateObjectTool extends LightningElement {
     try {
       this.loadingObj.main = true
       const sObjectNames = await getObjectNames({ objectType: CUSTOM_OBJECT })
-      this.sObjectNameOptions = JSON.parse(sObjectNames)
+      this.sObjectNameOptions = [...JSON.parse(sObjectNames), ...this.sObjectNameOptions]
     } catch (error) {
       console.error('error in fetching sObject names', error)
     }
@@ -137,7 +152,7 @@ export default class MigrateObjectTool extends LightningElement {
     try {
       this.loadingObj.main = true
       const bigObjectNames = await getObjectNames({ objectType: BIG_OBJECT })
-      this.bigObjectNameOptions = JSON.parse(bigObjectNames)
+      this.bigObjectNameOptions = [...JSON.parse(bigObjectNames), ...this.bigObjectNameOptions]
       console.log(s(this.bigObjectNameOptions))
     } catch (error) {
       console.error('error in fetching bigObject names', error)
@@ -146,23 +161,31 @@ export default class MigrateObjectTool extends LightningElement {
 
   async handleSObjectChange(event) {
     this.loadingObj.step2 = true
-    this.loadingObj.step3 = true
     const newValue = event.detail.value
-    this.currentSObjectName = newValue
-    this.checkQuery(this.conditionQueryValue)
-    const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
-    this.soFieldOptions = JSON.parse(soFieldOptions)
-    this.soFieldOptions = this.formatPickListOption(this.soFieldOptions)
+    if (newValue === CUSTOM_OBJECT) {
+      window.open(CREATE_NEW_SO_LINK, '_self')
+    } else {
+      this.currentSObjectName = newValue
+      this.loadingObj.step3 = true
+      this.checkQuery(this.conditionQueryValue)
+      const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
+      this.soFieldOptions = JSON.parse(soFieldOptions)
+      this.soFieldOptions = this.formatPickListOption(this.soFieldOptions)
+    }
     this.loadingObj.step2 = false
   }
 
   async handleBigObjectChange(event) {
     this.loadingObj.step2 = true
     const newValue = event.detail.value
-    this.currentBigObjectName = newValue
-    const boFieldOptions = await getFieldsByObjectName({ objectName: newValue })
-    this.boFieldOptions = JSON.parse(boFieldOptions)
-    this.boFieldOptions = this.formatPickListOption(this.boFieldOptions)
+    if (newValue === BIG_OBJECT) {
+      window.open(CREATE_NEW_BO_LINK, '_self')
+    } else {
+      this.currentBigObjectName = newValue
+      const boFieldOptions = await getFieldsByObjectName({ objectName: newValue })
+      this.boFieldOptions = JSON.parse(boFieldOptions)
+      this.boFieldOptions = this.formatPickListOption(this.boFieldOptions)
+    }
     this.loadingObj.step2 = false
   }
 

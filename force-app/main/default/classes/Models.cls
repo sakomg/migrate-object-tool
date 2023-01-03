@@ -101,7 +101,7 @@ public without sharing class Models {
   }
 
   public class RecurrenceDataWeekly extends RecurrenceData {
-    List<String> selectedValues;
+    List<String> selectedValues; // [1,4,7]
 
     public override String getCron() {
       List<String> selectedDayValues = new List<String>();

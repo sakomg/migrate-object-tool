@@ -49,7 +49,6 @@ public without sharing class MigrateCustomObjectController {
       ' AND IsQueryable = true ';
 
     if (objectType == 'big_object') {
-      // TODO: add enum
       soql += 'AND IsIdEnabled = false';
     } else if (objectType == 'custom_object') {
       soql += 'AND IsIdEnabled = true';

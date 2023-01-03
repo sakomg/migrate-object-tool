@@ -42,11 +42,11 @@ export default class MigrateObjectToolFieldPair extends LightningElement {
       result.icon = 'utility:success'
       result.variant = ''
     } else if (this.hasAcceptableType(this.pair.soFieldType, this.pair.boFieldType)) {
-      result.content = 'Warning'
+      result.content = `You can move a field with type ${this.pair.soFieldType} to a field with type ${this.pair.boFieldType}, however, in case of incompatibility, data will be lost.`
       result.icon = 'utility:warning'
       result.variant = 'warning'
     } else {
-      result.content = 'Error'
+      result.content = `Incompatible types. You cannot move field with type ${this.pair.soFieldType} to field with type ${this.pair.boFieldType}. Select a different field.`
       result.icon = 'utility:error'
       result.variant = 'error'
     }

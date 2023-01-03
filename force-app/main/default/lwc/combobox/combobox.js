@@ -321,6 +321,7 @@ export default class cCombobox extends LightningElement {
         subText: option.description,
         highlight: this.value === option.value,
         iconSize: 'x-small',
+        iconName: option.iconName,
         value: option.value
       }
     })

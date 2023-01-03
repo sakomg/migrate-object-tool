@@ -30,7 +30,9 @@ public without sharing class MigrateCustomObjectService implements MigrateCustom
     String finalQuery = null;
 
     if (String.isNotBlank(this.query)) {
-      finalQuery = this.query.replace('COUNT()', String.join(new List<String>(fields), ', ')); // FIXME
+      String baseQuery = 'SELECT ' + String.join(new List<String>(fields), ', ') + ' FROM ';
+      String payloadQuery = this.query.substringAfter('FROM');
+      finalQuery = baseQuery + payloadQuery;
     }
 
     return finalQuery;
