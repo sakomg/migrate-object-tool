@@ -113,7 +113,7 @@ public without sharing class Models {
         }
       }
 
-      List<Object> params = new List<Object>{ String.join(selectedDayValues, ','), '*', '?', '*' };
+      List<Object> params = new List<Object>{ '?', '*', String.join(selectedDayValues, ','), '*' };
       this.setCron(params);
       return this.cron;
     }

@@ -31,7 +31,7 @@ public without sharing class MigrateCustomObjectController {
         System.schedule(className + ': ' + Datetime.now(), cron, new MigrateCustomObjectScheduler(service, chunkSize));
       }
     } catch (Exception e) {
-      throw new AuraHandledException('Main issue. ' + e.getMessage());
+      throw new MigrateCustomObjectException('Main issue. ' + e.getMessage());
     }
   }
 
