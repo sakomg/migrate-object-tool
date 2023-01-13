@@ -1,37 +1,26 @@
 import { LightningElement, track } from 'lwc'
+import constants from './constants'
 import Modal from 'c/migrateObjectToolModal'
 import Confirm from 'lightning/confirm'
-import { Drag } from './utils'
+import MigrateObjectToolValidator from './validator'
+import getScheduledJobs from '@salesforce/apex/MigrateCustomObjectController.getScheduledJobs'
 import getObjectNames from '@salesforce/apex/MigrateCustomObjectController.getObjectNames'
 import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 import checkQuery from '@salesforce/apex/MigrateCustomObjectController.checkQuery'
 import processMigrate from '@salesforce/apex/MigrateCustomObjectController.processMigrate'
 
-const CUSTOM_OBJECT = 'custom_object'
-const BIG_OBJECT = 'big_object'
-
-const CREATE_NEW_BO_LINK = '/lightning/setup/BigObjects/home'
-const CREATE_NEW_SO_LINK = '/lightning/setup/ObjectManager/home'
-
-const TIME_PERIOD_TO_CLASS = {
-  Daily: 'Models.RecurrenceDataDaily',
-  Weekly: 'Models.RecurrenceDataWeekly',
-  Monthly: 'Models.RecurrenceDataMonthly',
-  Yearly: 'Models.RecurrenceDataYearly'
-}
-
 export default class MigrateObjectTool extends LightningElement {
   @track sObjectNameOptions = [
     {
       label: 'Create New',
-      value: CUSTOM_OBJECT,
+      value: constants.CUSTOM_OBJECT,
       iconName: 'utility:add'
     }
   ]
   @track bigObjectNameOptions = [
     {
       label: 'Create New',
-      value: BIG_OBJECT,
+      value: constants.BIG_OBJECT,
       iconName: 'utility:add'
     }
   ]
@@ -53,8 +42,7 @@ export default class MigrateObjectTool extends LightningElement {
     step3: false,
     step4: false
   }
-
-  activeSections = ['step-1', 'step-2', 'step-3', 'step-4']
+  @track scheduledJobs = []
 
   openPanelLeft = true
   soFieldOptions = []
@@ -71,9 +59,10 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   _conditionQueryValue = ''
+  validator = null
 
-  get recurrenceComponent() {
-    return this.template.querySelector('c-migrate-object-tool-recurrence')
+  get mainComponent() {
+    return this.template.querySelector('c-migrate-object-tool-main')
   }
 
   get messageAfterQuery() {
@@ -107,10 +96,6 @@ export default class MigrateObjectTool extends LightningElement {
     return `SELECT COUNT() FROM ${this.currentSObjectName}`
   }
 
-  get drag() {
-    return new Drag([...this.fieldPairs])
-  }
-
   connectedCallback() {
     window.addEventListener('scroll', () => {
       this.setStickyHeader()
@@ -121,10 +106,12 @@ export default class MigrateObjectTool extends LightningElement {
 
     promises.push(this._getSObjectNames())
     promises.push(this._getBigObjectNames())
+    promises.push(this._getScheduledJobs())
 
     Promise.all(promises).finally(() => {
       this.loadingObj.main = false
     })
+    this.validator = new MigrateObjectToolValidator(this)
   }
 
   setStickyHeader() {
@@ -141,7 +128,7 @@ export default class MigrateObjectTool extends LightningElement {
   async _getSObjectNames() {
     try {
       this.loadingObj.main = true
-      const sObjectNames = await getObjectNames({ objectType: CUSTOM_OBJECT })
+      const sObjectNames = await getObjectNames({ objectType: constants.CUSTOM_OBJECT })
       this.sObjectNameOptions = [...JSON.parse(sObjectNames), ...this.sObjectNameOptions]
     } catch (error) {
       console.error('error in fetching sObject names', error)
@@ -151,7 +138,7 @@ export default class MigrateObjectTool extends LightningElement {
   async _getBigObjectNames() {
     try {
       this.loadingObj.main = true
-      const bigObjectNames = await getObjectNames({ objectType: BIG_OBJECT })
+      const bigObjectNames = await getObjectNames({ objectType: constants.BIG_OBJECT })
       this.bigObjectNameOptions = [...JSON.parse(bigObjectNames), ...this.bigObjectNameOptions]
       console.log(s(this.bigObjectNameOptions))
     } catch (error) {
@@ -159,11 +146,16 @@ export default class MigrateObjectTool extends LightningElement {
     }
   }
 
+  async _getScheduledJobs() {
+    const scheduledJobs = await getScheduledJobs()
+    this.scheduledJobs = scheduledJobs && scheduledJobs.length ? JSON.parse(scheduledJobs) : []
+  }
+
   async handleSObjectChange(event) {
     this.loadingObj.step2 = true
     const newValue = event.detail.value
-    if (newValue === CUSTOM_OBJECT) {
-      window.open(CREATE_NEW_SO_LINK, '_self')
+    if (newValue === constants.CUSTOM_OBJECT) {
+      window.open(constants.CREATE_NEW_SO_LINK, '_self')
     } else {
       this.currentSObjectName = newValue
       this.loadingObj.step3 = true
@@ -178,8 +170,8 @@ export default class MigrateObjectTool extends LightningElement {
   async handleBigObjectChange(event) {
     this.loadingObj.step2 = true
     const newValue = event.detail.value
-    if (newValue === BIG_OBJECT) {
-      window.open(CREATE_NEW_BO_LINK, '_self')
+    if (newValue === constants.BIG_OBJECT) {
+      window.open(constants.CREATE_NEW_BO_LINK, '_self')
     } else {
       this.currentBigObjectName = newValue
       const boFieldOptions = await getFieldsByObjectName({ objectName: newValue })
@@ -234,10 +226,6 @@ export default class MigrateObjectTool extends LightningElement {
     this.fieldPairs = [...result]
   }
 
-  handleDragEnd(e) {
-    this.drag.end(e)
-  }
-
   formSummaryPayload(recurrenceData) {
     return {
       objectName: this.currentSObjectName || 'None',
@@ -250,7 +238,7 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   async handleExecute() {
-    const recurrenceData = this.recurrenceComponent.getRecurrenceSetupData()
+    const recurrenceData = this.mainComponent.getRecurrenceSetupData()
     const result = await Confirm.open({
       message: 'Are you sure you want to execute migrate process?',
       variant: 'default',
@@ -265,8 +253,13 @@ export default class MigrateObjectTool extends LightningElement {
     }
   }
 
+  handleSelectProcess(event) {
+    const sectionName = event.detail.name
+    console.log(sectionName)
+  }
+
   async handleSummary() {
-    const recurrenceData = this.recurrenceComponent.getRecurrenceSetupData()
+    const recurrenceData = this.mainComponent.getRecurrenceSetupData()
     const result = await Modal.open({
       size: 'small',
       description: 'Info',
@@ -297,25 +290,29 @@ export default class MigrateObjectTool extends LightningElement {
 
     console.log('recur', s(recurrenceData))
 
-    const className = TIME_PERIOD_TO_CLASS[recurrenceData.period]
+    const className = constants.TIME_PERIOD_TO_CLASS[recurrenceData.period]
 
     const recurrence = {
       className: className,
       payload: JSON.stringify(recurrenceData)
     }
 
-    console.log(recurrence)
+    const isValid = this.validator.validateAll(fieldMapping, recurrence)
 
-    try {
-      await processMigrate({
-        sObjectName: this.currentSObjectName,
-        bigObjectName: this.currentBigObjectName,
-        query: this.conditionQueryValue,
-        fieldMapping: fieldMapping,
-        recurrence: JSON.stringify(recurrence)
-      })
-    } catch (error) {
-      console.log(error)
+    if (isValid) {
+      try {
+        await processMigrate({
+          sObjectName: this.currentSObjectName,
+          bigObjectName: this.currentBigObjectName,
+          query: this.conditionQueryValue,
+          fieldMapping: fieldMapping,
+          recurrence: JSON.stringify(recurrence)
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      console.log('invalid')
     }
   }
 
@@ -334,8 +331,7 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   setActiveSection(sectionName) {
-    const accordion = this.template.querySelector('.container-accordion')
-    accordion.activeSectionName = sectionName
+    this.mainComponent.setActiveSection(sectionName)
   }
 
   handleTogglePanelLeft() {

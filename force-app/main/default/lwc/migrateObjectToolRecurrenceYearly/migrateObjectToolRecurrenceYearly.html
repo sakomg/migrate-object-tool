@@ -2,6 +2,32 @@
   <div class="pair-container">
     <template for:each={monthDayPairs} for:item="pair" for:index="index">
       <div class="pair" key={pair.index}>
+        <!-- <div class="slds-form-element">
+          <div class="slds-form-element__control">
+            <div class="slds-select_container">
+              <select class="slds-select" onchange={handleYearlyPairChange}>
+                <option value="Select">Select</option>
+                <template for:each={monthOptions} for:item="option">
+                  <option key={option.label} class="uiInputSelectOption" value={option.value}>{option.value}</option>
+                </template>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="slds-form-element">
+          <div class="slds-form-element__control">
+            <div class="slds-select_container">
+              <select class="slds-select" onchange={handleYearlyPairChange}>
+                <option value="Select">Select</option>
+                <template for:each={pair.dayOptions} for:item="option">
+                  <option key={option.label} class="uiInputSelectOption" value={option.value}>{option.value}</option>
+                </template>
+              </select>
+            </div>
+          </div>
+        </div> -->
+
         <c-combobox
           name="Month"
           variant="label-hidden"

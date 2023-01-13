@@ -10,7 +10,7 @@
       variant="label-hidden"
       value={pair.soField}
       placeholder="Choose a field"
-      options={soFieldOptions}
+      options={_soFieldOptions}
       onchange={handleObjectFieldChange}
       data-pair-index={pair.index}
       data-property="soField"
@@ -23,7 +23,7 @@
       variant="label-hidden"
       value={pair.boField}
       placeholder="Choose a field"
-      options={boFieldOptions}
+      options={_boFieldOptions}
       onchange={handleObjectFieldChange}
       data-pair-index={pair.index}
       data-property="boField"
@@ -64,6 +64,7 @@
           size="small"
           content={indicator.content}
           icon-variant={indicator.variant}
+          class={indicator.class}
         ></lightning-helptext>
       </template>
     </div>

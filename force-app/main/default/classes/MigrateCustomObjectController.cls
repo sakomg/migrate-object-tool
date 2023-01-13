@@ -6,6 +6,22 @@ public without sharing class MigrateCustomObjectController {
   }
 
   @AuraEnabled
+  public static String getScheduledJobs() {
+    List<Models.AsyncJob> result = new List<Models.AsyncJob>();
+    List<AsyncApexJob> origJobs = [
+      SELECT Id, ApexClassId, ApexClass.Name, JobItemsProcessed, JobType, Status, NumberOfErrors, MethodName
+      FROM AsyncApexJob
+      WHERE JobType IN ('ScheduledApex')
+    ];
+
+    for (AsyncApexJob origJob : origJobs) {
+      result.add(new Models.AsyncJob(origJob));
+    }
+
+    return JSON.serialize(result);
+  }
+
+  @AuraEnabled
   public static void processMigrate(
     String sObjectName,
     String bigObjectName,
@@ -25,10 +41,17 @@ public without sharing class MigrateCustomObjectController {
         Integer chunkSize = 2000;
         Models.RecurrenceData recurrenceData = (Models.RecurrenceData) JSON.deserialize(data, Type.forName(className));
         System.debug('recurrenceData: ' + recurrenceData);
-        String cron = recurrenceData.getCron();
-        System.debug('cron: ' + cron);
+        List<String> crons = recurrenceData.getCrons();
+        System.debug('crons: ' + crons);
         MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
-        System.schedule(className + ': ' + Datetime.now(), cron, new MigrateCustomObjectScheduler(service, chunkSize));
+
+        for (Integer i = 0; i < crons.size(); i++) {
+          System.schedule(
+            className + ': ' + DateTime.now() + ' (' + sObjectName + ' -> ' + bigObjectName + ') ' + i,
+            crons[i],
+            new MigrateCustomObjectScheduler(service, chunkSize)
+          );
+        }
       }
     } catch (Exception e) {
       throw new MigrateCustomObjectException('Main issue. ' + e.getMessage());

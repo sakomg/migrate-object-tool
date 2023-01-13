@@ -14,41 +14,63 @@ const ACCEPTABLE_TYPES = {
 
 export default class MigrateObjectToolFieldPair extends LightningElement {
   @api pair = {}
-  @api soFieldOptions
-  @api boFieldOptions
+
+  _soFieldOptions
+  _boFieldOptions
+
+  get soFieldOptions() {
+    return this._soFieldOptions
+  }
+
+  @api
+  set soFieldOptions(value) {
+    this._soFieldOptions = [...value]
+  }
+
+  get boFieldOptions() {
+    return this._boFieldOptions
+  }
+
+  @api
+  set boFieldOptions(value) {
+    this._boFieldOptions = [...value]
+  }
 
   get isDisabledSoFields() {
-    return this.soFieldOptions.length === 0
+    return this._soFieldOptions.length === 0
   }
 
   get isDisabledBoFields() {
-    return this.boFieldOptions.length === 0
+    return this._boFieldOptions.length === 0
   }
 
   get indicator() {
     const result = {
       content: null,
       icon: null,
-      variant: null
+      variant: null,
+      class: null
     }
 
     if (Object.keys(this.pair).length === 0) {
       return result
     }
 
-    // TODO: add message for contents
     if (this.pair.soFieldType === this.pair.boFieldType) {
       result.content = 'Success'
       result.icon = 'utility:success'
       result.variant = ''
+      result.class = 'slds-icon-text-success'
     } else if (this.hasAcceptableType(this.pair.soFieldType, this.pair.boFieldType)) {
       result.content = `You can move a field with type ${this.pair.soFieldType} to a field with type ${this.pair.boFieldType}, however, in case of incompatibility, data will be lost.`
       result.icon = 'utility:warning'
       result.variant = 'warning'
+      result.class = ''
     } else {
       result.content = `Incompatible types. You cannot move field with type ${this.pair.soFieldType} to field with type ${this.pair.boFieldType}. Select a different field.`
       result.icon = 'utility:error'
       result.variant = 'error'
+      result.class = ''
     }
 
     return result

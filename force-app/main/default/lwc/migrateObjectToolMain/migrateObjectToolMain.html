@@ -1,0 +1,115 @@
+<template>
+  <lightning-accordion class="container-accordion" allow-multiple-sections-open active-section-name={activeSections}>
+    <lightning-accordion-section name="step-1" label="Step 1">
+      <div id="step-1">
+        <div>
+          <i>Choose objects to transfer data.</i>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
+            <c-combobox
+              name="sObject"
+              label="From Object (sObject)"
+              value=""
+              placeholder="None"
+              options={sObjectNameOptions}
+              onchange={handleSObjectChange}
+            >
+            </c-combobox>
+            <c-combobox
+              name="bObject"
+              label="To Object (Big Object)"
+              value=""
+              placeholder="None"
+              options={bigObjectNameOptions}
+              onchange={handleBigObjectChange}
+            >
+            </c-combobox>
+            <div class="delete-icon"></div>
+            <div class="indicator-icon"></div>
+          </div>
+        </div>
+      </div>
+    </lightning-accordion-section>
+
+    <lightning-accordion-section name="step-2" label="Step 2" class="slds-is-relative">
+      <div id="step-2">
+        <div if:true={loadingObj.step2}>
+          <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+        </div>
+        <div>
+          <i>Choose fields to transfer data.</i>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
+            <p class="slds-form-element__label">From Field</p>
+            <p class="slds-form-element__label">To Field</p>
+            <div class="delete-icon"></div>
+            <div class="indicator-icon"></div>
+          </div>
+
+          <template for:each={fieldPairs} for:item="pair" for:index="idx">
+            <div
+              draggable="true"
+              class="drag"
+              key={pair.index}
+              ondragstart={drag.start}
+              ondragover={drag.over}
+              ondragend={handleDragEnd}
+              data-index={idx}
+            >
+              <c-migrate-object-tool-field-pair
+                pair={pair}
+                so-field-options={soFieldOptions}
+                bo-field-options={boFieldOptions}
+                onfieldchange={handleObjectFieldChange}
+                ondeletepair={handleDeleteIconClick}
+              ></c-migrate-object-tool-field-pair>
+            </div>
+          </template>
+        </div>
+      </div>
+    </lightning-accordion-section>
+
+    <lightning-accordion-section name="step-3" label="Step 3" class="slds-is-relative">
+      <div id="step-3">
+        <div if:true={loadingObj.step3}>
+          <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+        </div>
+        <div>
+          <i>Conditions to fetch Custom Object records.</i>
+        </div>
+        <div class="pair-container">
+          <div class="pair">
+            <div class="drop-icon"></div>
+            <div class="condition-container">
+              <lightning-textarea
+                label="Salesforce Object Query Language (SOQL)"
+                onchange={handleInputUserQuery}
+                value={conditionQueryValue}
+                placeholder="Enter query"
+              ></lightning-textarea>
+              <div class={styleAfterQuery}>{messageAfterQuery}</div>
+            </div>
+            <div class="delete-icon"></div>
+            <div class="indicator-icon"></div>
+          </div>
+        </div>
+      </div>
+    </lightning-accordion-section>
+
+    <lightning-accordion-section name="step-4" label="Step 4">
+      <div id="step-4">
+        <div>
+          <i>Migration Recurrence.</i>
+        </div>
+        <div>
+          <c-migrate-object-tool-recurrence></c-migrate-object-tool-recurrence>
+          <div class="steps-footer"></div>
+        </div>
+      </div>
+    </lightning-accordion-section>
+  </lightning-accordion>
+</template>

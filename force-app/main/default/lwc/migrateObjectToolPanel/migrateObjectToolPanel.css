@@ -1,0 +1,8 @@
+.c-tile {
+  position: relative;
+  align-items: center;
+  padding: var(--lwc-spacingXSmall, 0.5rem) var(--lwc-spacingLarge, 1.5rem) var(--lwc-spacingXSmall, 0.5rem)
+    var(--lwc-spacingXLarge, 2rem);
+  border-top: var(--lwc-borderWidthThin, 1px) solid transparent;
+  border-bottom: var(--lwc-borderWidthThin, 1px) solid transparent;
+}

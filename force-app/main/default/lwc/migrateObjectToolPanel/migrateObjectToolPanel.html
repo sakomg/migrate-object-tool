@@ -1,0 +1,55 @@
+<template>
+  <div class="slds-panel slds-size_medium slds-panel_docked slds-panel_docked-left slds-is-open panel-custom" aria-hidden="false">
+    <div class="slds-panel__header">
+      <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title="Processes"><b>Processes</b></h2>
+      <div class="slds-panel__header-actions">
+        <lightning-button-icon
+          icon-name="utility:close"
+          size="small"
+          variant="base"
+          onclick={handleTogglePanelLeft}
+        ></lightning-button-icon>
+      </div>
+    </div>
+    <lightning-vertical-navigation onselect={handleSelectProcess} selected-item={initiallySelected}>
+      <template for:each={navigationData} for:item="section">
+        <lightning-vertical-navigation-section key={section.label} label={section.label}>
+          <template for:each={section.items} for:item="item">
+            <template if:true={item.new}>
+              <div key={item.name}>
+                <lightning-vertical-navigation-item-icon
+                  label={item.label}
+                  name={item.name}
+                  icon-name={item.icon}
+                ></lightning-vertical-navigation-item-icon>
+              </div>
+            </template>
+            <template if:true={item.inProgress}>
+              <div key={item.name}>
+                <lightning-vertical-navigation-item-icon
+                  label={item.label}
+                  name={item.name}
+                  icon-name={item.icon}
+                ></lightning-vertical-navigation-item-icon>
+                <lightning-tile class="c-tile">
+                  <p class="slds-truncate" title="progress">
+                    <c-migrate-object-tool-batch-progress></c-migrate-object-tool-batch-progress>
+                  </p>
+                </lightning-tile>
+              </div>
+            </template>
+            <template if:true={item.scheduled}>
+              <div key={item.name}>
+                <lightning-vertical-navigation-item-icon
+                  label={item.label}
+                  name={item.name}
+                  icon-name={item.icon}
+                ></lightning-vertical-navigation-item-icon>
+              </div>
+            </template>
+          </template>
+        </lightning-vertical-navigation-section>
+      </template>
+    </lightning-vertical-navigation>
+  </div>
+</template>
