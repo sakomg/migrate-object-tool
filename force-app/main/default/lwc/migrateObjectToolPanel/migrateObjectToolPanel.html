@@ -13,9 +13,9 @@
     </div>
     <lightning-vertical-navigation onselect={handleSelectProcess} selected-item={initiallySelected}>
       <template for:each={navigationData} for:item="section">
-        <lightning-vertical-navigation-section key={section.label} label={section.label}>
-          <template for:each={section.items} for:item="item">
-            <template if:true={item.new}>
+        <template if:true={section.new}>
+          <lightning-vertical-navigation-section key={section.label} label={section.label}>
+            <template for:each={section.items} for:item="item">
               <div key={item.name}>
                 <lightning-vertical-navigation-item-icon
                   label={item.label}
@@ -24,7 +24,11 @@
                 ></lightning-vertical-navigation-item-icon>
               </div>
             </template>
-            <template if:true={item.inProgress}>
+          </lightning-vertical-navigation-section>
+        </template>
+        <template if:true={section.progress}>
+          <lightning-vertical-navigation-section key={section.label} label={section.label}>
+            <template for:each={section.items} for:item="item">
               <div key={item.name}>
                 <lightning-vertical-navigation-item-icon
                   label={item.label}
@@ -38,7 +42,11 @@
                 </lightning-tile>
               </div>
             </template>
-            <template if:true={item.scheduled}>
+          </lightning-vertical-navigation-section>
+        </template>
+        <template if:true={section.scheduled}>
+          <lightning-vertical-navigation-section key={section.label} label={section.label}>
+            <template for:each={section.items} for:item="item">
               <div key={item.name}>
                 <lightning-vertical-navigation-item-icon
                   label={item.label}
@@ -47,8 +55,8 @@
                 ></lightning-vertical-navigation-item-icon>
               </div>
             </template>
-          </template>
-        </lightning-vertical-navigation-section>
+          </lightning-vertical-navigation-section>
+        </template>
       </template>
     </lightning-vertical-navigation>
   </div>

@@ -28,7 +28,7 @@
       <div class="slds-grid body">
         <template if:true={openPanelLeft}>
           <c-migrate-object-tool-panel
-            scheduled-jobs={scheduledJobs}
+            main-data={data}
             onselect={handleSelectProcess}
             ontogglepanel={handleTogglePanelLeft}
           ></c-migrate-object-tool-panel>

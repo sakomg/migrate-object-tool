@@ -1,24 +1,61 @@
 public without sharing class MigrateCustomObjectController {
   private final static MigrateCustomObjectValidator VALIDATOR;
+  private final static Integer CHUNK_SIZE = 2000;
 
   static {
     VALIDATOR = new MigrateCustomObjectValidator();
   }
 
   @AuraEnabled
-  public static String getScheduledJobs() {
-    List<Models.AsyncJob> result = new List<Models.AsyncJob>();
-    List<AsyncApexJob> origJobs = [
-      SELECT Id, ApexClassId, ApexClass.Name, JobItemsProcessed, JobType, Status, NumberOfErrors, MethodName
-      FROM AsyncApexJob
-      WHERE JobType IN ('ScheduledApex')
-    ];
-
-    for (AsyncApexJob origJob : origJobs) {
-      result.add(new Models.AsyncJob(origJob));
+  public static String getData() {
+    Set<Id> jobIds = new Set<Id>();
+    String userId = UserInfo.getUserId();
+    List<msol__Migrate_Custom_Object_Store__c> storeData = getStoreData(userId);
+    for (msol__Migrate_Custom_Object_Store__c item : storeData) {
+      String jobId = item.msol__Job_Id__c;
+      if (String.isNotBlank(jobId)) {
+        jobIds.add(jobId);
+      }
     }
+    List<CronTrigger> cronTriggers = getScheduledJobsData(jobIds);
 
-    return JSON.serialize(result);
+    return JSON.serialize(new Models.GeneralInformation(storeData, cronTriggers));
+  }
+
+  private static List<msol__Migrate_Custom_Object_Store__c> getStoreData(String userId) {
+    return [
+      SELECT
+        Id,
+        msol__Job_Id__c,
+        msol__Job_Name__c,
+        msol__SObject_Name__c,
+        msol__Big_Object_Name__c,
+        msol__SOQL__c,
+        msol__Cron_Expression__c,
+        msol__Field_Mapping__c,
+        msol__User_Id__c
+      FROM msol__Migrate_Custom_Object_Store__c
+      WHERE msol__User_Id__c = :userId
+    ];
+  }
+
+  private static List<CronTrigger> getScheduledJobsData(Set<Id> jobIds) {
+    return [
+      SELECT
+        Id,
+        CronExpression,
+        CronJobDetail.Name,
+        CronJobDetailId,
+        EndTime,
+        NextFireTime,
+        PreviousFireTime,
+        StartTime,
+        State,
+        TimesTriggered,
+        CronJobDetail.JobType
+      FROM CronTrigger
+      WHERE Id IN :jobIds
+    ];
   }
 
   @AuraEnabled
@@ -30,32 +67,58 @@ public without sharing class MigrateCustomObjectController {
     String recurrence
   ) {
     try {
-      System.debug('raw: ' + recurrence);
       if (VALIDATOR.validateMigrateParams(sObjectName, bigObjectName, query, fieldMapping, recurrence)) {
+        List<msol__Migrate_Custom_Object_Store__c> storeItems = new List<msol__Migrate_Custom_Object_Store__c>();
         Models.RecurrenceWrapper recurrenceWrapper = (Models.RecurrenceWrapper) JSON.deserialize(
           recurrence,
           Models.RecurrenceWrapper.class
         );
         String className = recurrenceWrapper.getClassName();
         String data = recurrenceWrapper.getPayload();
-        Integer chunkSize = 2000;
         Models.RecurrenceData recurrenceData = (Models.RecurrenceData) JSON.deserialize(data, Type.forName(className));
-        System.debug('recurrenceData: ' + recurrenceData);
         List<String> crons = recurrenceData.getCrons();
-        System.debug('crons: ' + crons);
         MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
 
         for (Integer i = 0; i < crons.size(); i++) {
-          System.schedule(
-            className + ': ' + DateTime.now() + ' (' + sObjectName + ' -> ' + bigObjectName + ') ' + i,
+          String jobName = className + ': ' + System.now() + ' (' + i + ')';
+          String jobId = System.schedule(jobName, crons[i], new MigrateCustomObjectScheduler(service, CHUNK_SIZE));
+          msol__Migrate_Custom_Object_Store__c storeItem = generateStoreItem(
+            jobId,
+            jobName,
+            sObjectName,
+            bigObjectName,
+            query,
             crons[i],
-            new MigrateCustomObjectScheduler(service, chunkSize)
+            fieldMapping
           );
+          storeItems.add(storeItem);
         }
+        insert storeItems;
       }
     } catch (Exception e) {
       throw new MigrateCustomObjectException('Main issue. ' + e.getMessage());
     }
+  }
+
+  private static msol__Migrate_Custom_Object_Store__c generateStoreItem(
+    String jobId,
+    String jobName,
+    String sObjectName,
+    String bigObjectName,
+    String query,
+    String cron,
+    Map<String, String> fieldMapping
+  ) {
+    return new msol__Migrate_Custom_Object_Store__c(
+      msol__Job_Id__c = jobId,
+      msol__Job_Name__c = jobName,
+      msol__SObject_Name__c = sObjectName,
+      msol__Big_Object_Name__c = bigObjectName,
+      msol__SOQL__c = query,
+      msol__Cron_Expression__c = cron,
+      msol__Field_Mapping__c = JSON.serializePretty(fieldMapping),
+      msol__User_Id__c = UserInfo.getUserId()
+    );
   }
 
   @AuraEnabled

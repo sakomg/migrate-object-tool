@@ -1,81 +1,79 @@
 import { LightningElement, api } from 'lwc'
+import { deepCopy } from 'c/utilsPrivate'
 
 const PANEL_SECTIONS = [
   {
     label: 'New',
+    new: true,
+    progress: false,
+    scheduled: false,
     items: [
       {
         label: 'None',
         name: 'new_create',
-        icon: 'standard:bundle_config',
-        new: true,
-        inProgress: false,
-        scheduled: false
+        icon: 'standard:bundle_config'
       }
     ]
   },
   {
     label: 'In Progress',
+    new: false,
+    progress: true,
+    scheduled: false,
     items: [
       {
         label: 'Account',
         name: 'progress_account',
-        icon: 'standard:account',
-        new: false,
-        inProgress: true,
-        scheduled: false
+        icon: 'standard:account'
       },
       {
         label: 'Contact',
         name: 'progress_contact',
-        icon: 'standard:contact',
-        new: false,
-        inProgress: true,
-        scheduled: false
+        icon: 'standard:contact'
       },
       {
         label: 'Opportunity',
         name: 'progress_opportunity',
-        icon: 'standard:opportunity',
-        new: false,
-        inProgress: true,
-        scheduled: false
+        icon: 'standard:opportunity'
       }
     ]
   },
   {
     label: 'Scheduled',
+    new: false,
+    progress: false,
+    scheduled: true,
     items: [
       {
         label: 'Case',
         name: 'scheduled_case',
-        icon: 'standard:case',
-        new: false,
-        inProgress: false,
-        scheduled: true
+        icon: 'standard:case'
       },
       {
         label: 'Product',
-        icon: 'standard:product',
-        new: false,
-        inProgress: false,
-        scheduled: true
+        name: 'scheduled_product',
+        icon: 'standard:product'
       }
     ]
   }
 ]
 
 export default class MigrateObjectToolPanel extends LightningElement {
-  @api scheduledJobs
+  _mainData
   initiallySelected = 'create_new'
   navigationData = PANEL_SECTIONS
 
-  get scheduledData() {
-    return []
+  get mainData() {
+    return this._mainData
+  }
+
+  @api
+  set mainData(value) {
+    this._mainData = deepCopy(value)
   }
 
   connectedCallback() {
-    console.log(this.scheduledJobs)
+    console.log(JSON.parse(JSON.stringify(this._mainData)))
   }
 
   handleTogglePanelLeft() {

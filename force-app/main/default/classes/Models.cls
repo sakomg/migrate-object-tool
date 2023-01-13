@@ -203,4 +203,14 @@ public without sharing class Models {
       this.methodName = origJob.MethodName;
     }
   }
+
+  public class GeneralInformation {
+    private List<msol__Migrate_Custom_Object_Store__c> storeItems;
+    List<CronTrigger> cronItems;
+
+    public GeneralInformation(List<msol__Migrate_Custom_Object_Store__c> storeItems, List<CronTrigger> cronItems) {
+      this.storeItems = storeItems;
+      this.cronItems = cronItems;
+    }
+  }
 }

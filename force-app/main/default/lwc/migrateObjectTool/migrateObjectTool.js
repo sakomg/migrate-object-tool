@@ -3,63 +3,31 @@ import constants from './constants'
 import Modal from 'c/migrateObjectToolModal'
 import Confirm from 'lightning/confirm'
 import MigrateObjectToolValidator from './validator'
-import getScheduledJobs from '@salesforce/apex/MigrateCustomObjectController.getScheduledJobs'
+import getData from '@salesforce/apex/MigrateCustomObjectController.getData'
 import getObjectNames from '@salesforce/apex/MigrateCustomObjectController.getObjectNames'
 import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 import checkQuery from '@salesforce/apex/MigrateCustomObjectController.checkQuery'
 import processMigrate from '@salesforce/apex/MigrateCustomObjectController.processMigrate'
 
 export default class MigrateObjectTool extends LightningElement {
-  @track sObjectNameOptions = [
-    {
-      label: 'Create New',
-      value: constants.CUSTOM_OBJECT,
-      iconName: 'utility:add'
-    }
-  ]
-  @track bigObjectNameOptions = [
-    {
-      label: 'Create New',
-      value: constants.BIG_OBJECT,
-      iconName: 'utility:add'
-    }
-  ]
+  @track sObjectNameOptions = [...constants.SOBJECT_NAME_OPTIONS]
+  @track bigObjectNameOptions = [...constants.BIG_OBJECT_NAME_OPTIONS]
+  @track dummyFieldPair = { ...constants.DUMMY_FIELD_PAIR }
+  @track loadingObj = { ...constants.LOADING_OBJ }
+  @track responseUserQuery = { ...constants.RESPONSE_USER_QUERY }
+  @track data = []
   @track fieldPairs = []
-  @track dummyFieldPair = {
-    index: 0,
-    soField: '',
-    boField: '',
-    soFieldType: '',
-    boFieldType: '',
-    toShowDeleteButton: false,
-    toShowDropButton: false,
-    toShowValidIndicator: false
-  }
-  @track loadingObj = {
-    main: false,
-    step1: false,
-    step2: false,
-    step3: false,
-    step4: false
-  }
-  @track scheduledJobs = []
+  @track soFieldOptions = []
+  @track boFieldOptions = []
 
   openPanelLeft = true
-  soFieldOptions = []
-  boFieldOptions = []
 
   queryTimeoutId = null
   currentSObjectName = null
   currentBigObjectName = null
-
-  responseUserQuery = {
-    message: '',
-    dataLength: [],
-    success: null
-  }
+  validator = null
 
   _conditionQueryValue = ''
-  validator = null
 
   get mainComponent() {
     return this.template.querySelector('c-migrate-object-tool-main')
@@ -106,7 +74,7 @@ export default class MigrateObjectTool extends LightningElement {
 
     promises.push(this._getSObjectNames())
     promises.push(this._getBigObjectNames())
-    promises.push(this._getScheduledJobs())
+    promises.push(this._getData())
 
     Promise.all(promises).finally(() => {
       this.loadingObj.main = false
@@ -140,15 +108,19 @@ export default class MigrateObjectTool extends LightningElement {
       this.loadingObj.main = true
       const bigObjectNames = await getObjectNames({ objectType: constants.BIG_OBJECT })
       this.bigObjectNameOptions = [...JSON.parse(bigObjectNames), ...this.bigObjectNameOptions]
-      console.log(s(this.bigObjectNameOptions))
     } catch (error) {
       console.error('error in fetching bigObject names', error)
     }
   }
 
-  async _getScheduledJobs() {
-    const scheduledJobs = await getScheduledJobs()
-    this.scheduledJobs = scheduledJobs && scheduledJobs.length ? JSON.parse(scheduledJobs) : []
+  async _getData() {
+    try {
+      this.loadingObj.main = true
+      const data = await getData()
+      this.data = data && data.length ? JSON.parse(data) : []
+    } catch (error) {
+      console.error('error in fetching scheduled jobs', error)
+    }
   }
 
   async handleSObjectChange(event) {
