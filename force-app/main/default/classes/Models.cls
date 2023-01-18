@@ -72,9 +72,9 @@ public without sharing class Models {
   }
 
   public virtual class RecurrenceData {
-    List<String> crons;
-    String period;
-    Time migrateTime;
+    private List<String> crons;
+    private String period;
+    private Time migrateTime;
 
     public List<String> getCrons() {
       if (crons == null) {
@@ -85,6 +85,18 @@ public without sharing class Models {
     }
 
     public virtual void setCrons() {
+    }
+
+    public virtual String getSelectedValues() {
+      return null;
+    }
+
+    public Time getMigrateTime() {
+      return this.migrateTime;
+    }
+
+    public String getPeriod() {
+      return this.period;
     }
 
     private void addCron(List<Object> params) {
@@ -105,16 +117,20 @@ public without sharing class Models {
   }
 
   public class RecurrenceDataDaily extends RecurrenceData {
-    List<String> selectedValues; // [1,2,3,4,5,6,7]
+    public List<String> selectedValues; // [1,2,3,4,5,6,7]
 
     public override void setCrons() {
       List<Object> params = new List<Object>{ '1/1', '*', '?', '*' };
       this.addCron(params);
     }
+
+    public override String getSelectedValues() {
+      return JSON.serializePretty(this.selectedValues);
+    }
   }
 
   public class RecurrenceDataWeekly extends RecurrenceData {
-    List<String> selectedValues; // [1,4,7]
+    public List<String> selectedValues; // [1,4,7]
 
     public override void setCrons() {
       List<String> selectedDayValues = new List<String>();
@@ -129,19 +145,27 @@ public without sharing class Models {
       List<Object> params = new List<Object>{ '?', '*', String.join(selectedDayValues, ','), '*' };
       this.addCron(params);
     }
+
+    public override String getSelectedValues() {
+      return JSON.serializePretty(this.selectedValues);
+    }
   }
 
   public class RecurrenceDataMonthly extends RecurrenceData {
-    List<String> selectedValues;
+    public List<String> selectedValues;
 
     public override void setCrons() {
       List<Object> params = new List<Object>{ String.join(this.selectedValues, ','), '*', '?', '*' };
       this.addCron(params);
     }
+
+    public override String getSelectedValues() {
+      return JSON.serializePretty(this.selectedValues);
+    }
   }
 
   public class RecurrenceDataYearly extends RecurrenceData {
-    List<TimePeriod> selectedValues;
+    public List<TimePeriod> selectedValues;
 
     public override void setCrons() {
       Map<Integer, List<Integer>> monthToDays = new Map<Integer, List<Integer>>();
@@ -163,6 +187,10 @@ public without sharing class Models {
         List<Object> params = new List<Object>{ String.join(days, ','), month, '?', '*' };
         this.addCron(params);
       }
+    }
+
+    public override String getSelectedValues() {
+      return JSON.serializePretty(this.selectedValues);
     }
   }
 
@@ -204,13 +232,91 @@ public without sharing class Models {
     }
   }
 
-  public class GeneralInformation {
-    private List<msol__Migrate_Custom_Object_Store__c> storeItems;
-    List<CronTrigger> cronItems;
+  public virtual class GeneralInformation {
+    public virtual void wrapStore(msol__Migrate_Custom_Object_Store__c storeItem) {
+    }
+    public virtual void wrapCrone(CronTrigger cronItem) {
+    }
 
-    public GeneralInformation(List<msol__Migrate_Custom_Object_Store__c> storeItems, List<CronTrigger> cronItems) {
-      this.storeItems = storeItems;
-      this.cronItems = cronItems;
+    private String safeFormat(Datetime origDatetime) {
+      return origDatetime != null ? origDatetime.format() : null;
+    }
+  }
+
+  public class InitialGeneralInformation extends GeneralInformation {
+    private String storeId;
+    private String cronId;
+    private String jobId;
+    private String jobName;
+    private String sObjectName;
+    private String bigObjectName;
+    private String query;
+    private String cronExpression;
+    private String fieldMapping;
+    private String userId;
+    private String timeZone;
+    private String jobDetailName;
+    private String jobDetailId;
+    private Datetime endTime;
+    private Datetime nextFireTime;
+    private Datetime prevFireTime;
+    private Datetime startTime;
+    private String state;
+    private Integer timesTriggered;
+    private String jobType;
+    private String recurrenceDetails;
+    private Time migrateTime;
+    private String period;
+    private String icon;
+
+    public InitialGeneralInformation() {
+      super();
+    }
+
+    public override void wrapStore(msol__Migrate_Custom_Object_Store__c storeItem) {
+      this.storeId = storeItem.Id;
+      this.jobId = storeItem.isSet('msol__Job_Id__c') ? storeItem.msol__Job_Id__c : null;
+      this.jobName = storeItem.isSet('msol__Job_Name__c') ? storeItem.msol__Job_Name__c : null;
+      this.sObjectName = storeItem.isSet('msol__SObject_Name__c') ? storeItem.msol__SObject_Name__c : null;
+      this.bigObjectName = storeItem.isSet('msol__Big_Object_Name__c') ? storeItem.msol__Big_Object_Name__c : null;
+      this.query = storeItem.isSet('msol__SOQL__c') ? storeItem.msol__SOQL__c : null;
+      this.fieldMapping = storeItem.isSet('msol__Field_Mapping__c') ? storeItem.msol__Field_Mapping__c : null;
+      this.userId = storeItem.isSet('msol__User_Id__c') ? storeItem.msol__User_Id__c : null;
+      this.recurrenceDetails = storeItem.isSet('msol__Recurrence_Details__c') ? storeItem.msol__Recurrence_Details__c : null;
+      this.migrateTime = storeItem.isSet('msol__Migrate_Time__c') ? storeItem.msol__Migrate_Time__c : null;
+      this.period = storeItem.isSet('msol__Period__c') ? storeItem.msol__Period__c : null;
+      this.icon = storeItem.isSet('msol__Icon_Name__c') ? storeItem.msol__Icon_Name__c : null;
+      this.timeZone = UserInfo.getTimeZone().toString();
+    }
+
+    public override void wrapCrone(CronTrigger cronItem) {
+      this.cronExpression = cronItem.isSet('CronExpression') ? cronItem.CronExpression : null;
+      this.jobDetailName = cronItem.isSet('CronJobDetailId') ? cronItem.CronJobDetail.Name : null;
+      this.jobDetailId = cronItem.isSet('CronJobDetailId') ? cronItem.CronJobDetailId : null;
+      this.endTime = cronItem.isSet('EndTime') ? cronItem.EndTime : null;
+      this.nextFireTime = cronItem.isSet('NextFireTime') ? cronItem.NextFireTime : null;
+      this.prevFireTime = cronItem.isSet('PreviousFireTime') ? cronItem.PreviousFireTime : null;
+      this.startTime = cronItem.isSet('StartTime') ? cronItem.StartTime : null;
+      this.state = cronItem.isSet('State') ? cronItem.State : null;
+      this.timesTriggered = cronItem.isSet('TimesTriggered') ? cronItem.TimesTriggered : null;
+      this.jobType = cronItem.isSet('CronJobDetailId') ? cronItem.CronJobDetail.JobType : null;
+    }
+  }
+
+  public class TrackedGeneralInformation extends GeneralInformation {
+    private String jobId;
+    private String state;
+
+    public TrackedGeneralInformation() {
+      super();
+    }
+
+    public override void wrapStore(msol__Migrate_Custom_Object_Store__c storeItem) {
+      this.jobId = storeItem.isSet('msol__Job_Id__c') ? storeItem.msol__Job_Id__c : null;
+    }
+
+    public override void wrapCrone(CronTrigger cronItem) {
+      this.state = cronItem.isSet('State') ? cronItem.State : null;
     }
   }
 }

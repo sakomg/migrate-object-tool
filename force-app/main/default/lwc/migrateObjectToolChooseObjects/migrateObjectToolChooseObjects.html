@@ -1,0 +1,33 @@
+<template>
+  <div if:true={loading}>
+    <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+  </div>
+  <div>
+    <i>Choose objects to transfer data.</i>
+  </div>
+  <div class="pair-container">
+    <div class="pair">
+      <div class="drop-icon"></div>
+      <c-combobox
+        name="sObject"
+        label="From Object (sObject)"
+        value={currentSObjectName}
+        placeholder="None"
+        options={sObjectNameOptions}
+        onchange={handleSObjectChange}
+      >
+      </c-combobox>
+      <c-combobox
+        name="bObject"
+        label="To Object (Big Object)"
+        value={currentBigObjectName}
+        placeholder="None"
+        options={bigObjectNameOptions}
+        onchange={handleBigObjectChange}
+      >
+      </c-combobox>
+      <div class="delete-icon"></div>
+      <div class="indicator-icon"></div>
+    </div>
+  </div>
+</template>

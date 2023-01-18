@@ -1,5 +1,5 @@
 <template>
-  <div class="slds-panel slds-size_medium slds-panel_docked slds-panel_docked-left slds-is-open panel-custom" aria-hidden="false">
+  <div class="slds-panel slds-size_large slds-panel_docked slds-panel_docked-left slds-is-open panel-custom" aria-hidden="false">
     <div class="slds-panel__header">
       <h2 class="slds-panel__header-title slds-text-heading_small slds-truncate" title="Processes"><b>Processes</b></h2>
       <div class="slds-panel__header-actions">
@@ -11,53 +11,52 @@
         ></lightning-button-icon>
       </div>
     </div>
-    <lightning-vertical-navigation onselect={handleSelectProcess} selected-item={initiallySelected}>
-      <template for:each={navigationData} for:item="section">
-        <template if:true={section.new}>
-          <lightning-vertical-navigation-section key={section.label} label={section.label}>
-            <template for:each={section.items} for:item="item">
-              <div key={item.name}>
-                <lightning-vertical-navigation-item-icon
-                  label={item.label}
-                  name={item.name}
-                  icon-name={item.icon}
-                ></lightning-vertical-navigation-item-icon>
-              </div>
-            </template>
-          </lightning-vertical-navigation-section>
+    <lightning-vertical-navigation onselect={handleSelectProcess}>
+      <lightning-vertical-navigation-section label="Draft">
+        <template for:each={draftItems} for:item="item">
+          <div key={item.name}>
+            <lightning-vertical-navigation-item-icon
+              label={item.label}
+              name={item.name}
+              icon-name={item.icon}
+            ></lightning-vertical-navigation-item-icon>
+          </div>
         </template>
-        <template if:true={section.progress}>
-          <lightning-vertical-navigation-section key={section.label} label={section.label}>
-            <template for:each={section.items} for:item="item">
-              <div key={item.name}>
-                <lightning-vertical-navigation-item-icon
-                  label={item.label}
-                  name={item.name}
-                  icon-name={item.icon}
-                ></lightning-vertical-navigation-item-icon>
-                <lightning-tile class="c-tile">
-                  <p class="slds-truncate" title="progress">
-                    <c-migrate-object-tool-batch-progress></c-migrate-object-tool-batch-progress>
-                  </p>
-                </lightning-tile>
-              </div>
-            </template>
-          </lightning-vertical-navigation-section>
+      </lightning-vertical-navigation-section>
+      <lightning-vertical-navigation-section label="In Progress">
+        <template for:each={progressItems} for:item="item">
+          <div key={item.name}>
+            <lightning-vertical-navigation-item-icon
+              label={item.label}
+              name={item.name}
+              icon-name={item.icon}
+            ></lightning-vertical-navigation-item-icon>
+            <lightning-tile class="c-tile">
+              <p class="slds-truncate" title="progress">
+                <c-migrate-object-tool-batch-progress item={item}></c-migrate-object-tool-batch-progress>
+              </p>
+            </lightning-tile>
+          </div>
         </template>
-        <template if:true={section.scheduled}>
-          <lightning-vertical-navigation-section key={section.label} label={section.label}>
-            <template for:each={section.items} for:item="item">
-              <div key={item.name}>
-                <lightning-vertical-navigation-item-icon
-                  label={item.label}
-                  name={item.name}
-                  icon-name={item.icon}
-                ></lightning-vertical-navigation-item-icon>
-              </div>
+      </lightning-vertical-navigation-section>
+      <lightning-vertical-navigation-section label="Scheduled">
+        <template for:each={scheduledItems} for:item="item">
+          <div key={item.name}>
+            <lightning-vertical-navigation-item-icon
+              label={item.label}
+              name={item.name}
+              icon-name={item.icon}
+            ></lightning-vertical-navigation-item-icon>
+            <template if:true={item.show}>
+              <lightning-tile class="c-tile">
+                <p class="slds-truncate">
+                  <c-migrate-object-tool-panel-scheduled item={item}></c-migrate-object-tool-panel-scheduled>
+                </p>
+              </lightning-tile>
             </template>
-          </lightning-vertical-navigation-section>
+          </div>
         </template>
-      </template>
+      </lightning-vertical-navigation-section>
     </lightning-vertical-navigation>
   </div>
 </template>

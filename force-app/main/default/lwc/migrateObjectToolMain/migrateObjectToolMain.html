@@ -1,35 +1,14 @@
 <template>
   <lightning-accordion class="container-accordion" allow-multiple-sections-open active-section-name={activeSections}>
-    <lightning-accordion-section name="step-1" label="Step 1">
+    <lightning-accordion-section name="step-1" label="Step 1" class="slds-is-relative">
       <div id="step-1">
-        <div>
-          <i>Choose objects to transfer data.</i>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            <c-combobox
-              name="sObject"
-              label="From Object (sObject)"
-              value=""
-              placeholder="None"
-              options={sObjectNameOptions}
-              onchange={handleSObjectChange}
-            >
-            </c-combobox>
-            <c-combobox
-              name="bObject"
-              label="To Object (Big Object)"
-              value=""
-              placeholder="None"
-              options={bigObjectNameOptions}
-              onchange={handleBigObjectChange}
-            >
-            </c-combobox>
-            <div class="delete-icon"></div>
-            <div class="indicator-icon"></div>
-          </div>
-        </div>
+        <c-migrate-object-tool-choose-objects
+          loading={loadingObj.step1}
+          current-s-object-name={currentSObjectName}
+          current-big-object-name={currentBigObjectName}
+          s-object-name-options={sObjectNameOptions}
+          big-object-name-options={bigObjectNameOptions}
+        ></c-migrate-object-tool-choose-objects>
       </div>
     </lightning-accordion-section>
 
@@ -75,40 +54,17 @@
 
     <lightning-accordion-section name="step-3" label="Step 3" class="slds-is-relative">
       <div id="step-3">
-        <div if:true={loadingObj.step3}>
-          <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
-        </div>
-        <div>
-          <i>Conditions to fetch Custom Object records.</i>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            <div class="condition-container">
-              <lightning-textarea
-                label="Salesforce Object Query Language (SOQL)"
-                onchange={handleInputUserQuery}
-                value={conditionQueryValue}
-                placeholder="Enter query"
-              ></lightning-textarea>
-              <div class={styleAfterQuery}>{messageAfterQuery}</div>
-            </div>
-            <div class="delete-icon"></div>
-            <div class="indicator-icon"></div>
-          </div>
-        </div>
+        <c-migrate-object-tool-conditions
+          loading={loadingObj.step3}
+          request-user-query={requestUserQuery}
+          response-user-query={responseUserQuery}
+        ></c-migrate-object-tool-conditions>
       </div>
     </lightning-accordion-section>
 
-    <lightning-accordion-section name="step-4" label="Step 4">
+    <lightning-accordion-section name="step-4" label="Step 4" class="slds-is-relative">
       <div id="step-4">
-        <div>
-          <i>Migration Recurrence.</i>
-        </div>
-        <div>
-          <c-migrate-object-tool-recurrence></c-migrate-object-tool-recurrence>
-          <div class="steps-footer"></div>
-        </div>
+        <c-migrate-object-tool-recurrence loading={loadingObj.step4}></c-migrate-object-tool-recurrence>
       </div>
     </lightning-accordion-section>
   </lightning-accordion>

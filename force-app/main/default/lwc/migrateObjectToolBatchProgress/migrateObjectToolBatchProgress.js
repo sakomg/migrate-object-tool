@@ -1,4 +1,4 @@
-import { LightningElement } from 'lwc'
+import { LightningElement, api } from 'lwc'
 import { subscribe, unsubscribe } from 'lightning/empApi'
 
 export default class MigrateObjectToolBatchProgress extends LightningElement {
@@ -6,6 +6,16 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
   totalChunks = 0
   processedChunks = 0
   subscription = {}
+  _item
+
+  get item() {
+    return this._item
+  }
+
+  @api
+  set item(value) {
+    this._item = { ...value }
+  }
 
   get processedPercent() {
     if (this.totalChunks === 0) {
@@ -52,8 +62,8 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
     const replyId = -1
     const messageCallback = (response) => {
       console.log(JSON.stringify(response.data))
-      const { Chunks_Total__c, Chunks_Processed__c } = response.data.payload
-      this.updateRecordValue(Chunks_Total__c, Chunks_Processed__c)
+      const { msol__Chunks_Total__c, msol__Chunks_Processed__c, msol__Batch_Id__c } = response.data.payload
+      this.updateRecordValue(msol__Batch_Id__c, msol__Chunks_Total__c, msol__Chunks_Processed__c)
     }
 
     subscribe(this.channelName, replyId, messageCallback).then((response) => {
@@ -62,7 +72,7 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
     })
   }
 
-  updateRecordValue(total, processed) {
+  updateRecordValue(jobId, total, processed) {
     this.totalChunks = total
     this.processedChunks = processed + 1
   }

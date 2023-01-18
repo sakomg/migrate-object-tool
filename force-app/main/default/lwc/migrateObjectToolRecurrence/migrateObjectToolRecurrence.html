@@ -1,4 +1,10 @@
 <template>
+  <div if:true={loading}>
+    <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+  </div>
+  <div>
+    <i>Migration Recurrence.</i>
+  </div>
   <div class="slds-box slds-p-around_small slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
     <lightning-layout multiple-rows="true">
       <lightning-layout-item padding="around-small" size="12">
@@ -96,14 +102,7 @@
           </div>
         </div>
       </lightning-layout-item>
-
-      <!-- <lightning-layout-item padding="around-small" size="12">
-        <div class="page-section page-header">
-          <div class="slds-grid slds-grid_align-spread">
-            <div style="height: 500px" class="">Section 4</div>
-          </div>
-        </div>
-      </lightning-layout-item> -->
     </lightning-layout>
   </div>
+  <div class="steps-footer"></div>
 </template>

@@ -40,6 +40,7 @@ const DUMMY_FIELD_PAIR = {
 
 const LOADING_OBJ = {
   main: false,
+  panel: false,
   step1: false,
   step2: false,
   step3: false,
@@ -52,6 +53,8 @@ const RESPONSE_USER_QUERY = {
   success: null
 }
 
+const TRACK_DATA_CHANGE_INTERVAL = 1000 * 60
+
 export default Object.assign({
   CUSTOM_OBJECT,
   BIG_OBJECT,
@@ -62,5 +65,6 @@ export default Object.assign({
   SOBJECT_NAME_OPTIONS,
   DUMMY_FIELD_PAIR,
   LOADING_OBJ,
-  RESPONSE_USER_QUERY
+  RESPONSE_USER_QUERY,
+  TRACK_DATA_CHANGE_INTERVAL
 })

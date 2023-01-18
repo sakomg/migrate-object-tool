@@ -57,4 +57,45 @@ public with sharing class Constants {
     '6' => 'FRI',
     '7' => 'SAT'
   };
+
+  public static final Map<String, List<String>> MIGRATE_OBJECT_FIELDS_BY_REQUEST_TYPE = new Map<String, List<String>>{
+    'Initial' => new List<String>{
+      'Id',
+      'msol__Job_Id__c',
+      'msol__Job_Name__c',
+      'msol__SObject_Name__c',
+      'msol__Big_Object_Name__c',
+      'msol__SOQL__c',
+      'msol__Cron_Expression__c',
+      'msol__Field_Mapping__c',
+      'msol__User_Id__c',
+      'msol__Period__c',
+      'msol__Migrate_Time__c',
+      'msol__Recurrence_Details__c',
+      'msol__Icon_Name__c'
+    },
+    'Track changes' => new List<String>{ 'Id', 'msol__Job_Id__c' }
+  };
+
+  public static final Map<String, List<String>> CRON_TRIGGER_FIELDS_BY_REQUEST_TYPE = new Map<String, List<String>>{
+    'Initial' => new List<String>{
+      'Id',
+      'CronExpression',
+      'CronJobDetail.Name',
+      'CronJobDetailId',
+      'EndTime',
+      'NextFireTime',
+      'PreviousFireTime',
+      'StartTime',
+      'State',
+      'TimesTriggered',
+      'CronJobDetail.JobType'
+    },
+    'Track changes' => new List<String>{ 'Id', 'State' }
+  };
+
+  public static final Map<String, String> GENERAL_INFORMATION_CLASS_NAME_BY_REQUEST_TYPE = new Map<String, String>{
+    'Initial' => 'Models.InitialGeneralInformation',
+    'Track changes' => 'Models.TrackedGeneralInformation'
+  };
 }

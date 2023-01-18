@@ -1,0 +1,24 @@
+<template>
+  <div if:true={loading}>
+    <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+  </div>
+  <div>
+    <i>Conditions to fetch Custom Object records.</i>
+  </div>
+  <div class="pair-container">
+    <div class="pair">
+      <div class="drop-icon"></div>
+      <div class="condition-container">
+        <lightning-textarea
+          label="Salesforce Object Query Language (SOQL)"
+          onchange={handleInputUserQuery}
+          value={requestUserQuery}
+          placeholder="Enter query"
+        ></lightning-textarea>
+        <div class={styleAfterQuery}>{messageAfterQuery}</div>
+      </div>
+      <div class="delete-icon"></div>
+      <div class="indicator-icon"></div>
+    </div>
+  </div>
+</template>

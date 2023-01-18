@@ -1,61 +1,53 @@
 public without sharing class MigrateCustomObjectController {
   private final static MigrateCustomObjectValidator VALIDATOR;
+  private final static MigrateCustomObjectRepository REPOSITORY;
   private final static Integer CHUNK_SIZE = 2000;
 
   static {
     VALIDATOR = new MigrateCustomObjectValidator();
+    REPOSITORY = new MigrateCustomObjectRepository();
   }
 
   @AuraEnabled
-  public static String getData() {
-    Set<Id> jobIds = new Set<Id>();
+  public static String getData(String requestType) {
+    System.debug('requestType ' + requestType);
     String userId = UserInfo.getUserId();
-    List<msol__Migrate_Custom_Object_Store__c> storeData = getStoreData(userId);
-    for (msol__Migrate_Custom_Object_Store__c item : storeData) {
-      String jobId = item.msol__Job_Id__c;
-      if (String.isNotBlank(jobId)) {
-        jobIds.add(jobId);
+    List<msol__Migrate_Custom_Object_Store__c> storeData = REPOSITORY.getStoreData(userId, requestType);
+    Map<Id, msol__Migrate_Custom_Object_Store__c> jobIdToStoreItem = collectJobIdToStoreItem(storeData);
+    List<CronTrigger> cronTriggers = REPOSITORY.getScheduledJobsData(jobIdToStoreItem.keySet(), requestType);
+
+    String className = Constants.GENERAL_INFORMATION_CLASS_NAME_BY_REQUEST_TYPE.get(requestType);
+    Type t = Type.forName('msol', className);
+
+    List<Models.GeneralInformation> result = new List<Models.GeneralInformation>();
+
+    for (CronTrigger cronTrigger : cronTriggers) {
+      msol__Migrate_Custom_Object_Store__c storeItem = jobIdToStoreItem.get(cronTrigger.Id);
+      if (storeItem != null && cronTrigger != null) {
+        Models.GeneralInformation generalInformationImpl = (Models.GeneralInformation) t.newInstance();
+        generalInformationImpl.wrapStore(storeItem);
+        generalInformationImpl.wrapCrone(cronTrigger);
+
+        result.add(generalInformationImpl);
       }
     }
-    List<CronTrigger> cronTriggers = getScheduledJobsData(jobIds);
 
-    return JSON.serialize(new Models.GeneralInformation(storeData, cronTriggers));
+    return JSON.serialize(result);
   }
 
-  private static List<msol__Migrate_Custom_Object_Store__c> getStoreData(String userId) {
-    return [
-      SELECT
-        Id,
-        msol__Job_Id__c,
-        msol__Job_Name__c,
-        msol__SObject_Name__c,
-        msol__Big_Object_Name__c,
-        msol__SOQL__c,
-        msol__Cron_Expression__c,
-        msol__Field_Mapping__c,
-        msol__User_Id__c
-      FROM msol__Migrate_Custom_Object_Store__c
-      WHERE msol__User_Id__c = :userId
-    ];
-  }
-
-  private static List<CronTrigger> getScheduledJobsData(Set<Id> jobIds) {
-    return [
-      SELECT
-        Id,
-        CronExpression,
-        CronJobDetail.Name,
-        CronJobDetailId,
-        EndTime,
-        NextFireTime,
-        PreviousFireTime,
-        StartTime,
-        State,
-        TimesTriggered,
-        CronJobDetail.JobType
-      FROM CronTrigger
-      WHERE Id IN :jobIds
-    ];
+  @AuraEnabled
+  public static void abortJobById(String jobId) {
+    try {
+      List<msol__Migrate_Custom_Object_Store__c> store = [
+        SELECT Id
+        FROM msol__Migrate_Custom_Object_Store__c
+        WHERE msol__Job_Id__c = :jobId
+      ];
+      System.abortJob(jobId);
+      delete store;
+    } catch (Exception e) {
+      throw new MigrateCustomObjectException('Abort issue.' + e.getMessage());
+    }
   }
 
   @AuraEnabled
@@ -89,7 +81,8 @@ public without sharing class MigrateCustomObjectController {
             bigObjectName,
             query,
             crons[i],
-            fieldMapping
+            fieldMapping,
+            recurrenceData
           );
           storeItems.add(storeItem);
         }
@@ -100,6 +93,19 @@ public without sharing class MigrateCustomObjectController {
     }
   }
 
+  private static Map<Id, msol__Migrate_Custom_Object_Store__c> collectJobIdToStoreItem(
+    List<msol__Migrate_Custom_Object_Store__c> storeData
+  ) {
+    Map<Id, msol__Migrate_Custom_Object_Store__c> result = new Map<Id, msol__Migrate_Custom_Object_Store__c>();
+    for (msol__Migrate_Custom_Object_Store__c item : storeData) {
+      String jobId = item.msol__Job_Id__c;
+      if (String.isNotBlank(jobId)) {
+        result.put(jobId, item);
+      }
+    }
+    return result;
+  }
+
   private static msol__Migrate_Custom_Object_Store__c generateStoreItem(
     String jobId,
     String jobName,
@@ -107,9 +113,13 @@ public without sharing class MigrateCustomObjectController {
     String bigObjectName,
     String query,
     String cron,
-    Map<String, String> fieldMapping
+    Map<String, String> fieldMapping,
+    Models.RecurrenceData recurrenceData
   ) {
     return new msol__Migrate_Custom_Object_Store__c(
+      msol__Recurrence_Details__c = recurrenceData.getSelectedValues(),
+      msol__Migrate_Time__c = recurrenceData.getMigrateTime(),
+      msol__Period__c = recurrenceData.getPeriod(),
       msol__Job_Id__c = jobId,
       msol__Job_Name__c = jobName,
       msol__SObject_Name__c = sObjectName,
@@ -117,7 +127,8 @@ public without sharing class MigrateCustomObjectController {
       msol__SOQL__c = query,
       msol__Cron_Expression__c = cron,
       msol__Field_Mapping__c = JSON.serializePretty(fieldMapping),
-      msol__User_Id__c = UserInfo.getUserId()
+      msol__User_Id__c = UserInfo.getUserId(),
+      msol__Icon_Name__c = getIconBySObjectName(sObjectName)
     );
   }
 
@@ -201,5 +212,33 @@ public without sharing class MigrateCustomObjectController {
     }
 
     return JSON.serialize(response);
+  }
+
+  private static String getIconBySObjectName(String sObjectName) {
+    String u = 'standard:template';
+    List<Schema.DescribeTabSetResult> tabSetDesc = Schema.describeTabs();
+    List<Schema.DescribeTabResult> tabDesc = new List<Schema.DescribeTabResult>();
+    List<Schema.DescribeIconResult> iconDesc = new List<Schema.DescribeIconResult>();
+
+    for (Schema.DescribeTabSetResult tsr : tabSetDesc) {
+      tabDesc.addAll(tsr.getTabs());
+    }
+
+    for (Schema.DescribeTabResult tr : tabDesc) {
+      if (sObjectName == tr.getSobjectName()) {
+        if (tr.isCustom() == true) {
+          iconDesc.addAll(tr.getIcons());
+        } else {
+          u = 'standard:' + sObjectName.toLowerCase();
+        }
+      }
+    }
+    for (Schema.DescribeIconResult ir : iconDesc) {
+      if (ir.getContentType() == 'image/svg+xml') {
+        u = 'custom:' + ir.getUrl().substringBetween('custom/', '.svg').substringBefore('_');
+        break;
+      }
+    }
+    return u;
   }
 }

@@ -1,30 +1,28 @@
 import { LightningElement, api } from 'lwc'
 import { deepCopy } from 'c/utilsPrivate'
 
-const PANEL_SECTIONS = [
-  {
-    label: 'New',
-    new: true,
-    progress: false,
-    scheduled: false,
-    items: [
+export default class MigrateObjectToolPanel extends LightningElement {
+  _mainData
+  inProgressCronTriggerIds = []
+
+  get draftItems() {
+    return [
       {
         label: 'None',
         name: 'new_create',
         icon: 'standard:bundle_config'
       }
     ]
-  },
-  {
-    label: 'In Progress',
-    new: false,
-    progress: true,
-    scheduled: false,
-    items: [
+  }
+
+  get progressItems() {
+    return [
       {
         label: 'Account',
         name: 'progress_account',
-        icon: 'standard:account'
+        icon: 'standard:account',
+        processedChunks: 0,
+        totalChunks: 10
       },
       {
         label: 'Contact',
@@ -37,31 +35,21 @@ const PANEL_SECTIONS = [
         icon: 'standard:opportunity'
       }
     ]
-  },
-  {
-    label: 'Scheduled',
-    new: false,
-    progress: false,
-    scheduled: true,
-    items: [
-      {
-        label: 'Case',
-        name: 'scheduled_case',
-        icon: 'standard:case'
-      },
-      {
-        label: 'Product',
-        name: 'scheduled_product',
-        icon: 'standard:product'
-      }
-    ]
   }
-]
 
-export default class MigrateObjectToolPanel extends LightningElement {
-  _mainData
-  initiallySelected = 'create_new'
-  navigationData = PANEL_SECTIONS
+  get scheduledItems() {
+    return this._mainData.map((item) => {
+      return {
+        ...item,
+        label: `${item.sObjectName} -> ${item.bigObjectName}`,
+        name: item.jobId
+      }
+    })
+  }
+
+  get cronTriggerIds() {
+    return this._mainData.map(({ jobId }) => jobId)
+  }
 
   get mainData() {
     return this._mainData
@@ -70,10 +58,6 @@ export default class MigrateObjectToolPanel extends LightningElement {
   @api
   set mainData(value) {
     this._mainData = deepCopy(value)
-  }
-
-  connectedCallback() {
-    console.log(JSON.parse(JSON.stringify(this._mainData)))
   }
 
   handleTogglePanelLeft() {

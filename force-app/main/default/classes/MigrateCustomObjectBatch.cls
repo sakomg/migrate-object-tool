@@ -105,7 +105,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
     Batch_Process__e bpEvent = new Batch_Process__e();
 
     AsyncApexJob job = [
-      SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems
+      SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems, CronTriggerId
       FROM AsyncApexJob
       WHERE Id = :context.getJobId()
     ];
@@ -113,6 +113,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
     bpEvent.Batch_Id__c = context.getJobId();
     bpEvent.Apex_Class__c = String.valueOf(this).substring(0, String.valueOf(this).indexOf(':'));
     bpEvent.Chunks_Total__c = Integer.valueOf(job.TotalJobItems);
+    bpEvent.CronTriggerId__c = (String) job.CronTriggerId;
     bpEvent.Chunks_Processed__c = Integer.valueOf(job.JobItemsProcessed);
     bpEvent.Object_Name__c = this.service.getSObjectName();
     bpEvent.Big_Object_Name__c = this.service.getBigObjectName();

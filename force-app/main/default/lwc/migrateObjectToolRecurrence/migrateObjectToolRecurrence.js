@@ -1,22 +1,23 @@
 import { LightningElement, api } from 'lwc'
 
 export default class MigrateObjectToolRecurrence extends LightningElement {
-  selectedMigrateTime = '18:30:00.000Z'
+  @api loading
 
+  selectedMigrateTime = '00:00:00.000Z'
   selectedPeriod = 'Daily'
   selectedWeekDays = ['1', '2', '3', '4', '5', '6', '7']
   savedSelectedWeekDays = []
+  selectedDaysNumber = []
+  savedSelectedDaysNumber = []
+  selectedMonthDayPairs = []
+  _daysNumberOptions = []
+
   toSaveSelectedWeekDays = false
   disabledWeekDays = true
 
-  selectedDaysNumber = []
-  savedSelectedDaysNumber = []
-  daysNumberOptions = []
-
-  selectedMonthDayPairs = []
-
   get periodOptions() {
     return [
+      { label: 'Once', value: 'Once' },
       { label: 'Daily', value: 'Daily' },
       { label: 'Weekly', value: 'Weekly' },
       { label: 'Monthly', value: 'Monthly' },
@@ -36,6 +37,10 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     ]
   }
 
+  get daysNumberOptions() {
+    return this._daysNumberOptions
+  }
+
   get isWeeklyPeriod() {
     return this.selectedPeriod === 'Daily' || this.selectedPeriod === 'Weekly'
   }
@@ -49,7 +54,7 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
   }
 
   connectedCallback() {
-    this.daysNumberOptions = this.getNonSelectedDaysNumberOptions()
+    this._daysNumberOptions = this.getNonSelectedDaysNumberOptions()
   }
 
   getNonSelectedDaysNumberOptions() {
@@ -100,7 +105,7 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     const index = event.currentTarget.dataset.key
     const rangeIndex = Number(index)
 
-    this.daysNumberOptions[rangeIndex].selectedDaysNumber = selectedDaysNumber
+    this._daysNumberOptions[rangeIndex].selectedDaysNumber = selectedDaysNumber
   }
 
   handleMonthDayPairsChange(event) {
@@ -112,6 +117,32 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
 
   handleMigrateTimeChange(event) {
     this.selectedMigrateTime = event.detail.value
+  }
+
+  @api
+  setRecurrenceSetupData(data) {
+    this.selectedPeriod = data.period
+    this.selectedMigrateTime = data.migrateTime
+    const selectedValues = this.handleRecurrenceDetails(data.recurrenceDetails)
+    switch (this.selectedPeriod) {
+      case 'Daily':
+        this.selectedWeekDays = selectedValues
+        this.disabledWeekDays = true
+        break
+      case 'Weekly':
+        this.selectedWeekDays = selectedValues
+        this.disabledWeekDays = false
+        break
+      case 'Monthly':
+        this._daysNumberOptions = selectedValues
+        break
+      case 'Yearly':
+        this.selectedMonthDayPairs = selectedValues
+        break
+      default:
+        console.error(`Error: the period ${this.selectedPeriod} doesn't match with any available`)
+        break
+    }
   }
 
   @api
@@ -139,9 +170,13 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     return recurrenceSetupData
   }
 
+  handleRecurrenceDetails(recurrenceDetails) {
+    return recurrenceDetails && recurrenceDetails != null ? JSON.parse(recurrenceDetails) : []
+  }
+
   extractSelectedDaysNumber() {
     let selectedDaysNumber = []
-    this.daysNumberOptions.forEach((element) => {
+    this._daysNumberOptions.forEach((element) => {
       selectedDaysNumber = selectedDaysNumber.concat(element.selectedDaysNumber)
     })
     return selectedDaysNumber

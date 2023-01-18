@@ -27,23 +27,31 @@
       </header>
       <div class="slds-grid body">
         <template if:true={openPanelLeft}>
-          <c-migrate-object-tool-panel
-            main-data={data}
-            onselect={handleSelectProcess}
-            ontogglepanel={handleTogglePanelLeft}
-          ></c-migrate-object-tool-panel>
+          <div class="slds-is-relative">
+            <c-migrate-object-tool-panel
+              main-data={data}
+              onabortjob={handleAbortScheduledJob}
+              onselect={handleSelectProcess}
+              ontogglepanel={handleTogglePanelLeft}
+            ></c-migrate-object-tool-panel>
+            <template if:true={loadingObj.panel}>
+              <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+            </template>
+          </div>
         </template>
         <div class="slds-col slds-p-around_medium">
           <c-migrate-object-tool-main
+            current-s-object-name={currentSObjectName}
+            current-big-object-name={currentBigObjectName}
             s-object-name-options={sObjectNameOptions}
             big-object-name-options={bigObjectNameOptions}
             loading-obj={loadingObj}
             field-pairs={fieldPairs}
             so-field-options={soFieldOptions}
             bo-field-options={boFieldOptions}
-            message-after-query={messageAfterQuery}
-            style-after-query={styleAfterQuery}
-            condition-query-value={conditionQueryValue}
+            response-user-query={responseUserQuery}
+            request-user-query={userQuery}
+            onquery={handleInputUserQuery}
             onsobjectchange={handleSObjectChange}
             onbigobjectchange={handleBigObjectChange}
             onfieldchange={handleObjectFieldChange}

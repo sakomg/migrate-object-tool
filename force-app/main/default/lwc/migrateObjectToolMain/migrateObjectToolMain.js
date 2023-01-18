@@ -7,9 +7,10 @@ export default class MigrateObjectToolMain extends LightningElement {
   @api loadingObj
   @api soFieldOptions
   @api boFieldOptions
-  @api messageAfterQuery
-  @api styleAfterQuery
-  @api conditionQueryValue
+  @api responseUserQuery
+  @api requestUserQuery
+  @api currentSObjectName
+  @api currentBigObjectName
   activeSections = ['step-1', 'step-2', 'step-3', 'step-4']
   _fieldPairs
 
@@ -36,6 +37,11 @@ export default class MigrateObjectToolMain extends LightningElement {
   }
 
   @api
+  setRecurrenceSetupData(data) {
+    return this.recurrenceComponent.setRecurrenceSetupData(data)
+  }
+
+  @api
   setActiveSection(sectionName) {
     const accordion = this.template.querySelector('.container-accordion')
     accordion.activeSectionName = sectionName
@@ -43,14 +49,6 @@ export default class MigrateObjectToolMain extends LightningElement {
 
   handleDragEnd(event) {
     this.drag.end(event)
-  }
-
-  handleSObjectChange(event) {
-    this.fireEvent('sobjectchange', event)
-  }
-
-  handleBigObjectChange(event) {
-    this.fireEvent('bigobjectchange', event)
   }
 
   handleObjectFieldChange(event) {
