@@ -1,15 +1,18 @@
 import { LightningElement, api } from 'lwc'
-import { subscribe, unsubscribe } from 'lightning/empApi'
 
 export default class MigrateObjectToolBatchProgress extends LightningElement {
-  channelName = '/event/Batch_Process__e'
-  totalChunks = 0
-  processedChunks = 0
-  subscription = {}
-  _item
+  _item = {}
 
   get item() {
     return this._item
+  }
+
+  get itemsProcessed() {
+    return this._item?.itemsProcessed
+  }
+
+  get totalJobItems() {
+    return this._item?.totalJobItems
   }
 
   @api
@@ -18,68 +21,29 @@ export default class MigrateObjectToolBatchProgress extends LightningElement {
   }
 
   get processedPercent() {
-    if (this.totalChunks === 0) {
+    if (this._item.totalJobItems === 0) {
       return 0
     }
-    return (this.processedChunks / this.totalChunks) * 100
+    return (this._item.itemsProcessed / this._item.totalJobItems) * 100
   }
 
   get statusStyle() {
-    if (this.processedChunks === 0) {
+    if (this._item.itemsProcessed === 0) {
       return 'slds-badge'
     }
-    if (this.processedChunks === this.totalChunks) {
+    if (this._item.itemsProcessed === this._item.totalJobItems) {
       return 'slds-badge slds-theme_success'
-    }
-    if (this.processedChunks > 0) {
-      return 'slds-badge_lightest'
     }
     return ''
   }
 
   get statusValue() {
-    if (this.processedChunks === 0) {
+    if (this._item.itemsProcessed === 0) {
       return 'In Active'
     }
-    if (this.processedChunks === this.totalChunks) {
+    if (this._item.itemsProcessed === this._item.totalJobItems) {
       return 'Done'
     }
-    if (this.processedChunks > 0) {
-      return 'In Progress'
-    }
     return ''
-  }
-
-  connectedCallback() {
-    this.handleSubscribe()
-  }
-
-  disconnectedCallback() {
-    this.handleUnsubscribe()
-  }
-
-  handleSubscribe() {
-    const replyId = -1
-    const messageCallback = (response) => {
-      console.log(JSON.stringify(response.data))
-      const { msol__Chunks_Total__c, msol__Chunks_Processed__c, msol__Batch_Id__c } = response.data.payload
-      this.updateRecordValue(msol__Batch_Id__c, msol__Chunks_Total__c, msol__Chunks_Processed__c)
-    }
-
-    subscribe(this.channelName, replyId, messageCallback).then((response) => {
-      console.log('Subscription request sent to: ', JSON.stringify(response.channel))
-      this.subscription = response
-    })
-  }
-
-  updateRecordValue(jobId, total, processed) {
-    this.totalChunks = total
-    this.processedChunks = processed + 1
-  }
-
-  handleUnsubscribe() {
-    unsubscribe(this.subscription, (response) => {
-      console.log('unsubscribe() response: ', JSON.stringify(response))
-    })
   }
 }

@@ -1,5 +1,4 @@
 import { LightningElement, api } from 'lwc'
-import { Drag } from './utils'
 
 export default class MigrateObjectToolMain extends LightningElement {
   @api sObjectNameOptions
@@ -11,21 +10,8 @@ export default class MigrateObjectToolMain extends LightningElement {
   @api requestUserQuery
   @api currentSObjectName
   @api currentBigObjectName
+  @api fieldPairs
   activeSections = ['step-1', 'step-2', 'step-3', 'step-4']
-  _fieldPairs
-
-  get fieldPairs() {
-    return this._fieldPairs
-  }
-
-  @api
-  set fieldPairs(value) {
-    this._fieldPairs = [...value]
-  }
-
-  get drag() {
-    return new Drag([...this.fieldPairs])
-  }
 
   get recurrenceComponent() {
     return this.template.querySelector('c-migrate-object-tool-recurrence')
@@ -45,18 +31,6 @@ export default class MigrateObjectToolMain extends LightningElement {
   setActiveSection(sectionName) {
     const accordion = this.template.querySelector('.container-accordion')
     accordion.activeSectionName = sectionName
-  }
-
-  handleDragEnd(event) {
-    this.drag.end(event)
-  }
-
-  handleObjectFieldChange(event) {
-    this.fireEvent('fieldchange', event)
-  }
-
-  handleDeleteIconClick(event) {
-    this.fireEvent('deleteicon', event)
   }
 
   handleInputUserQuery(event) {

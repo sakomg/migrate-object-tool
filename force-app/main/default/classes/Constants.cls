@@ -11,7 +11,7 @@ public with sharing class Constants {
     'RecurrenceType',
     'RecurrenceTimeZoneSidKey',
     'RecurrenceEndDateOnly',
-    'RecurrenceStartDateOnly  ',
+    'RecurrenceStartDateOnly',
     'RecurrenceActivityId',
     'ReminderDateTime',
     'ActivityOriginType',
@@ -61,7 +61,8 @@ public with sharing class Constants {
   public static final Map<String, List<String>> MIGRATE_OBJECT_FIELDS_BY_REQUEST_TYPE = new Map<String, List<String>>{
     'Initial' => new List<String>{
       'Id',
-      'msol__Job_Id__c',
+      'msol__Cron_Id__c',
+      'msol__Batch_Id__c',
       'msol__Job_Name__c',
       'msol__SObject_Name__c',
       'msol__Big_Object_Name__c',
@@ -74,7 +75,7 @@ public with sharing class Constants {
       'msol__Recurrence_Details__c',
       'msol__Icon_Name__c'
     },
-    'Track changes' => new List<String>{ 'Id', 'msol__Job_Id__c' }
+    'Track changes' => new List<String>{ 'Id', 'msol__Cron_Id__c', 'msol__Batch_Id__c' }
   };
 
   public static final Map<String, List<String>> CRON_TRIGGER_FIELDS_BY_REQUEST_TYPE = new Map<String, List<String>>{

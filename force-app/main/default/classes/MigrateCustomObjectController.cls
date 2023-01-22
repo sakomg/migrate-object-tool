@@ -1,7 +1,7 @@
 public without sharing class MigrateCustomObjectController {
   private final static MigrateCustomObjectValidator VALIDATOR;
   private final static MigrateCustomObjectRepository REPOSITORY;
-  private final static Integer CHUNK_SIZE = 2000;
+  private final static Integer CHUNK_SIZE = 1;
 
   static {
     VALIDATOR = new MigrateCustomObjectValidator();
@@ -10,21 +10,19 @@ public without sharing class MigrateCustomObjectController {
 
   @AuraEnabled
   public static String getData(String requestType) {
-    System.debug('requestType ' + requestType);
     String userId = UserInfo.getUserId();
     List<msol__Migrate_Custom_Object_Store__c> storeData = REPOSITORY.getStoreData(userId, requestType);
     Map<Id, msol__Migrate_Custom_Object_Store__c> jobIdToStoreItem = collectJobIdToStoreItem(storeData);
     List<CronTrigger> cronTriggers = REPOSITORY.getScheduledJobsData(jobIdToStoreItem.keySet(), requestType);
+    List<Models.GeneralInformation> result = new List<Models.GeneralInformation>();
 
     String className = Constants.GENERAL_INFORMATION_CLASS_NAME_BY_REQUEST_TYPE.get(requestType);
-    Type t = Type.forName('msol', className);
-
-    List<Models.GeneralInformation> result = new List<Models.GeneralInformation>();
+    Type type = Type.forName('msol', className);
 
     for (CronTrigger cronTrigger : cronTriggers) {
       msol__Migrate_Custom_Object_Store__c storeItem = jobIdToStoreItem.get(cronTrigger.Id);
       if (storeItem != null && cronTrigger != null) {
-        Models.GeneralInformation generalInformationImpl = (Models.GeneralInformation) t.newInstance();
+        Models.GeneralInformation generalInformationImpl = (Models.GeneralInformation) type.newInstance();
         generalInformationImpl.wrapStore(storeItem);
         generalInformationImpl.wrapCrone(cronTrigger);
 
@@ -36,17 +34,37 @@ public without sharing class MigrateCustomObjectController {
   }
 
   @AuraEnabled
+  public static String getBatchJobsData(List<String> batchIds) {
+    List<Models.AsyncJob> result = new List<Models.AsyncJob>();
+
+    if (batchIds.isEmpty()) {
+      return JSON.serialize(result);
+    }
+
+    List<AsyncApexJob> jobs = REPOSITORY.getBatchJobsData(batchIds);
+
+    for (AsyncApexJob job : jobs) {
+      result.add(new Models.AsyncJob(job));
+    }
+
+    return JSON.serialize(result);
+  }
+
+  @AuraEnabled
   public static void abortJobById(String jobId) {
+    if (String.isBlank(jobId)) {
+      return;
+    }
     try {
       List<msol__Migrate_Custom_Object_Store__c> store = [
         SELECT Id
         FROM msol__Migrate_Custom_Object_Store__c
-        WHERE msol__Job_Id__c = :jobId
+        WHERE msol__Cron_Id__c = :jobId
       ];
       System.abortJob(jobId);
       delete store;
     } catch (Exception e) {
-      throw new MigrateCustomObjectException('Abort issue.' + e.getMessage());
+      throw new MigrateCustomObjectException('Abort issue. ' + e.getMessage());
     }
   }
 
@@ -61,21 +79,25 @@ public without sharing class MigrateCustomObjectController {
     try {
       if (VALIDATOR.validateMigrateParams(sObjectName, bigObjectName, query, fieldMapping, recurrence)) {
         List<msol__Migrate_Custom_Object_Store__c> storeItems = new List<msol__Migrate_Custom_Object_Store__c>();
-        Models.RecurrenceWrapper recurrenceWrapper = (Models.RecurrenceWrapper) JSON.deserialize(
+        Recurrence.RecurrenceWrapper recurrenceWrapper = (Recurrence.RecurrenceWrapper) JSON.deserialize(
           recurrence,
-          Models.RecurrenceWrapper.class
+          Recurrence.RecurrenceWrapper.class
         );
         String className = recurrenceWrapper.getClassName();
         String data = recurrenceWrapper.getPayload();
-        Models.RecurrenceData recurrenceData = (Models.RecurrenceData) JSON.deserialize(data, Type.forName(className));
+        Recurrence.RecurrenceData recurrenceData = (Recurrence.RecurrenceData) JSON.deserialize(data, Type.forName(className));
+
+        System.debug('recurrenceData ' + recurrenceData);
         List<String> crons = recurrenceData.getCrons();
+        System.debug('crons ' + crons);
         MigrateCustomObjectService service = new MigrateCustomObjectService(sObjectName, bigObjectName, query, fieldMapping);
 
         for (Integer i = 0; i < crons.size(); i++) {
           String jobName = className + ': ' + System.now() + ' (' + i + ')';
-          String jobId = System.schedule(jobName, crons[i], new MigrateCustomObjectScheduler(service, CHUNK_SIZE));
+          MigrateCustomObjectScheduler scheduler = new MigrateCustomObjectScheduler(service, CHUNK_SIZE);
+          String cronId = System.schedule(jobName, crons[i], scheduler);
           msol__Migrate_Custom_Object_Store__c storeItem = generateStoreItem(
-            jobId,
+            cronId,
             jobName,
             sObjectName,
             bigObjectName,
@@ -98,7 +120,7 @@ public without sharing class MigrateCustomObjectController {
   ) {
     Map<Id, msol__Migrate_Custom_Object_Store__c> result = new Map<Id, msol__Migrate_Custom_Object_Store__c>();
     for (msol__Migrate_Custom_Object_Store__c item : storeData) {
-      String jobId = item.msol__Job_Id__c;
+      String jobId = item.msol__Cron_Id__c;
       if (String.isNotBlank(jobId)) {
         result.put(jobId, item);
       }
@@ -107,20 +129,20 @@ public without sharing class MigrateCustomObjectController {
   }
 
   private static msol__Migrate_Custom_Object_Store__c generateStoreItem(
-    String jobId,
+    String cronId,
     String jobName,
     String sObjectName,
     String bigObjectName,
     String query,
     String cron,
     Map<String, String> fieldMapping,
-    Models.RecurrenceData recurrenceData
+    Recurrence.RecurrenceData recurrenceData
   ) {
     return new msol__Migrate_Custom_Object_Store__c(
       msol__Recurrence_Details__c = recurrenceData.getSelectedValues(),
       msol__Migrate_Time__c = recurrenceData.getMigrateTime(),
       msol__Period__c = recurrenceData.getPeriod(),
-      msol__Job_Id__c = jobId,
+      msol__Cron_Id__c = cronId,
       msol__Job_Name__c = jobName,
       msol__SObject_Name__c = sObjectName,
       msol__Big_Object_Name__c = bigObjectName,
@@ -128,7 +150,7 @@ public without sharing class MigrateCustomObjectController {
       msol__Cron_Expression__c = cron,
       msol__Field_Mapping__c = JSON.serializePretty(fieldMapping),
       msol__User_Id__c = UserInfo.getUserId(),
-      msol__Icon_Name__c = getIconBySObjectName(sObjectName)
+      msol__Icon_Name__c = Utils.getIconBySObjectName(sObjectName)
     );
   }
 
@@ -212,33 +234,5 @@ public without sharing class MigrateCustomObjectController {
     }
 
     return JSON.serialize(response);
-  }
-
-  private static String getIconBySObjectName(String sObjectName) {
-    String u = 'standard:template';
-    List<Schema.DescribeTabSetResult> tabSetDesc = Schema.describeTabs();
-    List<Schema.DescribeTabResult> tabDesc = new List<Schema.DescribeTabResult>();
-    List<Schema.DescribeIconResult> iconDesc = new List<Schema.DescribeIconResult>();
-
-    for (Schema.DescribeTabSetResult tsr : tabSetDesc) {
-      tabDesc.addAll(tsr.getTabs());
-    }
-
-    for (Schema.DescribeTabResult tr : tabDesc) {
-      if (sObjectName == tr.getSobjectName()) {
-        if (tr.isCustom() == true) {
-          iconDesc.addAll(tr.getIcons());
-        } else {
-          u = 'standard:' + sObjectName.toLowerCase();
-        }
-      }
-    }
-    for (Schema.DescribeIconResult ir : iconDesc) {
-      if (ir.getContentType() == 'image/svg+xml') {
-        u = 'custom:' + ir.getUrl().substringBetween('custom/', '.svg').substringBefore('_');
-        break;
-      }
-    }
-    return u;
   }
 }

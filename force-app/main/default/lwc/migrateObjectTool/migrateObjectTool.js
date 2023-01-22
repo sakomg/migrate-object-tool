@@ -1,12 +1,11 @@
 import { LightningElement, track } from 'lwc'
+import { ShowToastEvent } from 'lightning/platformShowToastEvent'
 import { deepCopy } from 'c/utilsPrivate'
 import constants from './constants'
 import apex from './apexCalls'
+import MigrateObjectToolValidator from './validator'
 import Modal from 'c/migrateObjectToolModal'
 import Confirm from 'lightning/confirm'
-import MigrateObjectToolValidator from './validator'
-// import getDataTrackedProperties from '@salesforce/apex/MigrateCustomObjectController.getDataTrackedProperties'
-import abortJob from '@salesforce/apex/MigrateCustomObjectController.abortJobById'
 import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 import processMigrate from '@salesforce/apex/MigrateCustomObjectController.processMigrate'
 
@@ -24,9 +23,9 @@ export default class MigrateObjectTool extends LightningElement {
   openPanelLeft = true
   jobStatusTrackIntervalId = null
   queryTimeoutId
-  currentSObjectName = null
-  currentBigObjectName = null
   validator = null
+  currentSObjectName = ''
+  currentBigObjectName = ''
   userQuery = ''
 
   get mainComponent() {
@@ -34,7 +33,7 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   get dataTrackedToUpdateProperties() {
-    return this.data.map(({ jobId, state }) => ({ jobId, state }))
+    return this.data.map(({ batchId, cronId, state }) => ({ batchId, cronId, state }))
   }
 
   connectedCallback() {
@@ -66,7 +65,7 @@ export default class MigrateObjectTool extends LightningElement {
 
   async trackJobStatus() {
     const actualData = await apex.fetchData('Track changes')
-    console.log('actualData ', actualData)
+    // console.log('actualData ', actualData)
     const toUpdateData = !this.compareDataByTrackedProperties(actualData)
 
     if (toUpdateData) {
@@ -79,13 +78,17 @@ export default class MigrateObjectTool extends LightningElement {
       return false
     }
 
-    return this.dataTrackedToUpdateProperties.every(({ jobId, state }) => {
-      const actDataItem = actualData.find((item) => {
-        return item.jobId === jobId && item.state === state
-      })
+    return this.equalsCheck(actualData, this.dataTrackedToUpdateProperties)
+  }
 
-      return actDataItem
-    })
+  equalsCheck = (a, b) => {
+    if (a === b) return true
+    if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime()
+    if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) return a === b
+    if (a.prototype !== b.prototype) return false
+    const keys = Object.keys(a)
+    if (keys.length !== Object.keys(b).length) return false
+    return keys.every((k) => this.equalsCheck(a[k], b[k]))
   }
 
   setStickyHeader() {
@@ -99,24 +102,13 @@ export default class MigrateObjectTool extends LightningElement {
     }
   }
 
-  async _getSObjectNames() {
-    this.sObjectNameOptions = await apex.fetchSObjectNames()
-  }
-
-  async _getBigObjectNames() {
-    this.bigObjectNameOptions = await apex.fetchBigObjectNames()
-  }
-
-  async _getData() {
-    this.data = await apex.fetchData('Initial')
-  }
-
   async handleSObjectChange(event) {
     const newValue = event.detail.value
     if (newValue === constants.CUSTOM_OBJECT) {
       window.open(constants.CREATE_NEW_SO_LINK, '_self')
     } else {
       await this.processSObjectChange(newValue)
+      await this.processQueryChange()
     }
   }
 
@@ -132,7 +124,6 @@ export default class MigrateObjectTool extends LightningElement {
   async processSObjectChange(newValue) {
     this.loadingObj.step2 = true
     this.currentSObjectName = newValue
-    await this.processQueryChange()
     const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.soFieldOptions = this.formatPickListOption(JSON.parse(soFieldOptions))
     this.loadingObj.step2 = false
@@ -147,6 +138,8 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   handleObjectFieldChange(event) {
+    event.stopPropagation()
+    event.preventDefault()
     const { newValue, pairIndex, property } = event.detail
 
     this.fieldPairs[pairIndex][property] = newValue
@@ -226,8 +219,8 @@ export default class MigrateObjectTool extends LightningElement {
     this.loadingObj.step1 = true
     this.loadingObj.step4 = true
     const copy = deepCopy(this.data)
-    this.data = copy.map((item) => (item.jobId === sectionName ? { ...item, show: true } : { ...item, show: false }))
-    const selectedProcess = copy.find((item) => item.jobId === sectionName)
+    this.data = copy.map((item) => (item.cronId === sectionName ? { ...item, show: true } : { ...item, show: false }))
+    const selectedProcess = copy.find((item) => item.cronId === sectionName)
     await this.processSObjectChange(selectedProcess.sObjectName)
     await this.processBigObjectChange(selectedProcess.bigObjectName)
     this.processFieldsChange(selectedProcess.fieldMapping)
@@ -253,7 +246,9 @@ export default class MigrateObjectTool extends LightningElement {
         boField: value,
         toShowDeleteButton: true,
         toShowDropButton: true,
-        toShowValidIndicator: true
+        toShowValidIndicator: true,
+        soFieldType: this.soFieldOptions.find((option) => option.value === key)?.type,
+        boFieldType: this.boFieldOptions.find((option) => option.value === value)?.type
       })
     })
     result.push({ ...this.dummyFieldPair })
@@ -265,28 +260,28 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   setBlankValues() {
-    this.currentSObjectName = null
-    this.currentBigObjectName = null
+    const copy = deepCopy(this.data)
+    this.data = copy.map((item) => ({ ...item, show: false }))
+    this.currentSObjectName = ''
+    this.currentBigObjectName = ''
     this.fieldPairs = [{ ...constants.DUMMY_FIELD_PAIR }]
     this.soFieldOptions = []
     this.boFieldOptions = []
     this.userQuery = ''
     this.responseUserQuery = { ...constants.RESPONSE_USER_QUERY }
-    this.mainComponent.setRecurrenceSetupData({
-      period: 'Weekly',
-      migrateTime: '00:00:00.000Z',
-      recurrenceDetails: null
-    })
+    if (this.mainComponent) {
+      this.mainComponent.setRecurrenceSetupData({
+        period: 'Weekly',
+        migrateTime: '00:00:00.000Z',
+        recurrenceDetails: null
+      })
+    }
   }
 
   async handleAbortScheduledJob(event) {
-    const jobId = event.detail.jobId
-    try {
-      await abortJob({ jobId: jobId })
-      await this._getData()
-    } catch (error) {
-      console.log(error)
-    }
+    const cronId = event.detail.cronId
+    await this._abortJob(cronId)
+    await this._getData()
   }
 
   async handleSummary() {
@@ -320,26 +315,37 @@ export default class MigrateObjectTool extends LightningElement {
       payload: JSON.stringify(recurrenceData)
     }
 
-    const isValid = this.validator.validateAll(fieldMapping, recurrence)
+    const validateResult = this.validator.validateAll(fieldMapping, recurrence)
 
-    if (isValid) {
-      try {
-        this.loadingObj.panel = true
-        await processMigrate({
-          sObjectName: this.currentSObjectName,
-          bigObjectName: this.currentBigObjectName,
-          query: this.userQuery,
-          fieldMapping: fieldMapping,
-          recurrence: JSON.stringify(recurrence)
-        })
-        await this._getData()
-      } catch (error) {
-        console.log(error)
-      } finally {
-        this.loadingObj.panel = false
-      }
-    } else {
-      console.log('invalid') // handle invalid cases
+    if (validateResult.hasError) {
+      validateResult.items.forEach((item) => {
+        if (!item.success) {
+          this.displayMessage('', item.message, 'warning')
+        }
+      })
+      return
+    }
+
+    try {
+      this.loadingObj.panel = true
+      await processMigrate({
+        sObjectName: this.currentSObjectName,
+        bigObjectName: this.currentBigObjectName,
+        query: this.userQuery,
+        fieldMapping: fieldMapping,
+        recurrence: JSON.stringify(recurrence)
+      })
+      await this._getData()
+      this.displayMessage(
+        '',
+        `The migration from "${this.currentSObjectName}" to "${this.currentBigObjectName}" has started.`,
+        'info'
+      )
+    } catch (error) {
+      this.displayMessage('', `${error.body.message || 'Unknown error.'}`, 'error')
+      console.log(error)
+    } finally {
+      this.loadingObj.panel = false
     }
   }
 
@@ -376,5 +382,26 @@ export default class MigrateObjectTool extends LightningElement {
     }))
 
     return [...formattedPickListOptions]
+  }
+
+  async _getSObjectNames() {
+    this.sObjectNameOptions = await apex.fetchSObjectNames()
+  }
+
+  async _getBigObjectNames() {
+    this.bigObjectNameOptions = await apex.fetchBigObjectNames()
+  }
+
+  async _getData() {
+    this.data = await apex.fetchData('Initial')
+  }
+
+  async _abortJob(jobId) {
+    await apex.abortJob(jobId)
+  }
+
+  displayMessage = (title, message, variant, mode = 'dismissible') => {
+    const evt = new ShowToastEvent({ title, message, variant, mode })
+    this.dispatchEvent(evt)
   }
 }

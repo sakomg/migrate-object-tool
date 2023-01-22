@@ -14,6 +14,8 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
 
   toSaveSelectedWeekDays = false
   disabledWeekDays = true
+  disabledMigrateTime = false
+  onceMessage = ''
 
   get periodOptions() {
     return [
@@ -75,6 +77,16 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
   handleRadioGroupChange(event) {
     this.selectedPeriod = event.detail.value
 
+    if (this.selectedPeriod === 'Once') {
+      this.disabledMigrateTime = true
+      this.migrateTime = ''
+      this.onceMessage = 'Will be used current time.'
+    } else {
+      this.disabledMigrateTime = false
+      this.migrateTime = this.selectedMigrateTime
+      this.onceMessage = ''
+    }
+
     if (this.selectedPeriod === 'Daily') {
       this.savedSelectedWeekDays = [...this.selectedWeekDays]
       this.selectedWeekDays = ['1', '2', '3', '4', '5', '6', '7']
@@ -125,6 +137,8 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     this.selectedMigrateTime = data.migrateTime
     const selectedValues = this.handleRecurrenceDetails(data.recurrenceDetails)
     switch (this.selectedPeriod) {
+      case 'Once':
+        break
       case 'Daily':
         this.selectedWeekDays = selectedValues
         this.disabledWeekDays = true
@@ -152,6 +166,9 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     recurrenceSetupData.migrateTime = this.selectedMigrateTime
 
     switch (this.selectedPeriod) {
+      case 'Once':
+        recurrenceSetupData.selectedValues = []
+        break
       case 'Daily':
       case 'Weekly':
         recurrenceSetupData.selectedValues = this.selectedWeekDays

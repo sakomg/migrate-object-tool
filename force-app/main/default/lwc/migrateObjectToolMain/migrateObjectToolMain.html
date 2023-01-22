@@ -14,41 +14,12 @@
 
     <lightning-accordion-section name="step-2" label="Step 2" class="slds-is-relative">
       <div id="step-2">
-        <div if:true={loadingObj.step2}>
-          <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
-        </div>
-        <div>
-          <i>Choose fields to transfer data.</i>
-        </div>
-        <div class="pair-container">
-          <div class="pair">
-            <div class="drop-icon"></div>
-            <p class="slds-form-element__label">From Field</p>
-            <p class="slds-form-element__label">To Field</p>
-            <div class="delete-icon"></div>
-            <div class="indicator-icon"></div>
-          </div>
-
-          <template for:each={fieldPairs} for:item="pair" for:index="idx">
-            <div
-              draggable="true"
-              class="drag"
-              key={pair.index}
-              ondragstart={drag.start}
-              ondragover={drag.over}
-              ondragend={handleDragEnd}
-              data-index={idx}
-            >
-              <c-migrate-object-tool-field-pair
-                pair={pair}
-                so-field-options={soFieldOptions}
-                bo-field-options={boFieldOptions}
-                onfieldchange={handleObjectFieldChange}
-                ondeletepair={handleDeleteIconClick}
-              ></c-migrate-object-tool-field-pair>
-            </div>
-          </template>
-        </div>
+        <c-migrate-object-tool-choose-fields
+          loading={loadingObj.step2}
+          field-pairs={fieldPairs}
+          so-field-options={soFieldOptions}
+          bo-field-options={boFieldOptions}
+        ></c-migrate-object-tool-choose-fields>
       </div>
     </lightning-accordion-section>
 

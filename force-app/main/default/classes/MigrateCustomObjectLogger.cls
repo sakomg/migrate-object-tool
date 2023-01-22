@@ -23,8 +23,10 @@ public without sharing class MigrateCustomObjectLogger {
 
   private List<Log> logList;
   private String entryPoint;
+  private msol__Migrate_Custom_Object_Setting__c setting;
 
   public MigrateCustomObjectLogger(String entryPoint) {
+    this.setting = msol__Migrate_Custom_Object_Setting__c.getOrgDefaults();
     this.entryPoint = entryPoint;
     this.logList = new List<Log>();
   }
@@ -40,7 +42,7 @@ public without sharing class MigrateCustomObjectLogger {
       Message__c = executionMessage,
       Entry_Point__c = this.entryPoint
     );
-    insert executionLog;
+    this.insertLog(executionLog);
 
     if (!this.logList.isEmpty()) {
       this.createLogRecord(this.logList, executionLog.Id);
@@ -55,6 +57,14 @@ public without sharing class MigrateCustomObjectLogger {
       result += log.toString();
     }
 
-    insert new Attachment(ParentId = parentRecordId, Name = 'process.log', ContentType = 'text/rtf', Body = Blob.valueOf(result));
+    this.insertLog(
+      new Attachment(ParentId = parentRecordId, Name = 'process.log', ContentType = 'text/rtf', Body = Blob.valueOf(result))
+    );
+  }
+
+  private void insertLog(SObject record) {
+    if (this.setting.msol__Enable_Logs__c) {
+      insert record;
+    }
   }
 }

@@ -16,6 +16,7 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
   }
 
   public Database.QueryLocator start(Database.BatchableContext context) {
+    this.logger.log('Start.');
     String query = this.service.generateQuery();
     this.logger.log('Query: ' + query);
     return Database.getQueryLocator(query);
@@ -85,41 +86,37 @@ public without sharing class MigrateCustomObjectBatch implements Database.Batcha
           Database.delete(customObjectsToDelete, false);
         }
       }
-      this.logger.insertLog(MigrateCustomObjectLogger.Status.SUCCESS, 'OK');
     } catch (Exception e) {
       this.logger.insertLog(
         MigrateCustomObjectLogger.Status.ERROR,
         'Error cause: ' + e.getMessage() + ' | ' + e.getStackTraceString()
       );
-    } finally {
-      this.publishEventToBar(context);
     }
   }
 
   public void finish(Database.BatchableContext context) {
+    this.logger.log('Finish');
+    List<msol__Migrate_Custom_Object_Store__c> store = this.getStoreByBatchId(context.getJobId().to15());
+    this.logger.log('Store: ' + store);
+    if (!store.isEmpty()) {
+      Database.SaveResult result = this.clearBatchIdInStore(store.get(0));
+      this.logger.log('Clear result: ' + result);
+    }
+
     String finishedMessage = 'Finished. Success size: ' + this.totalSizeSuccess + '; Error size: ' + this.totalSizeError;
     this.logger.insertLog(MigrateCustomObjectLogger.Status.DONE, finishedMessage);
   }
 
-  private Database.SaveResult publishEventToBar(Database.BatchableContext context) {
-    Batch_Process__e bpEvent = new Batch_Process__e();
-
-    AsyncApexJob job = [
-      SELECT Id, Status, NumberOfErrors, JobItemsProcessed, TotalJobItems, CronTriggerId
-      FROM AsyncApexJob
-      WHERE Id = :context.getJobId()
+  private List<msol__Migrate_Custom_Object_Store__c> getStoreByBatchId(String batchId) {
+    return [
+      SELECT Id, msol__Batch_Id__c
+      FROM msol__Migrate_Custom_Object_Store__c
+      WHERE msol__Batch_Id__c = :batchId
     ];
+  }
 
-    bpEvent.Batch_Id__c = context.getJobId();
-    bpEvent.Apex_Class__c = String.valueOf(this).substring(0, String.valueOf(this).indexOf(':'));
-    bpEvent.Chunks_Total__c = Integer.valueOf(job.TotalJobItems);
-    bpEvent.CronTriggerId__c = (String) job.CronTriggerId;
-    bpEvent.Chunks_Processed__c = Integer.valueOf(job.JobItemsProcessed);
-    bpEvent.Object_Name__c = this.service.getSObjectName();
-    bpEvent.Big_Object_Name__c = this.service.getBigObjectName();
-
-    Database.SaveResult result = EventBus.publish(bpEvent);
-
-    return result;
+  private Database.SaveResult clearBatchIdInStore(msol__Migrate_Custom_Object_Store__c store) {
+    store.msol__Batch_Id__c = null;
+    return Database.update(store, false);
   }
 }

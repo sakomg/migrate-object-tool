@@ -1,10 +1,9 @@
 import constants from './constants'
 import getData from '@salesforce/apex/MigrateCustomObjectController.getData'
-// import getDataTrackedProperties from '@salesforce/apex/MigrateCustomObjectController.getDataTrackedProperties'
-// import abortJob from '@salesforce/apex/MigrateCustomObjectController.abortJobById'
 import getObjectNames from '@salesforce/apex/MigrateCustomObjectController.getObjectNames'
-// import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 import checkQueryCall from '@salesforce/apex/MigrateCustomObjectController.checkQuery'
+import abortJobCall from '@salesforce/apex/MigrateCustomObjectController.abortJobById'
+// import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 // import processMigrate from '@salesforce/apex/MigrateCustomObjectController.processMigrate'
 
 async function fetchSObjectNames() {
@@ -51,4 +50,12 @@ async function checkQuery(value) {
   return responseUserQuery
 }
 
-export default { fetchBigObjectNames, fetchSObjectNames, fetchData, checkQuery }
+async function abortJob(jobId) {
+  try {
+    await abortJobCall({ jobId: jobId })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export default { fetchBigObjectNames, fetchSObjectNames, fetchData, checkQuery, abortJob }

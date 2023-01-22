@@ -1,17 +1,11 @@
 .container {
   min-height: 100%;
-  background-color: #fafaf9;
+  background-color: white;
+  padding: 15px;
 }
 
-.panel-custom {
-  height: inherit;
-  min-height: calc(100vh - 170px);
-}
-
-@media (max-width: 980px) {
-  .panel-custom {
-    min-height: calc(100vh - 220px);
-  }
+h2 {
+  font-size: 24px;
 }
 
 .illustration-onloading {
@@ -22,7 +16,7 @@
 }
 
 .pair-container {
-  max-width: 700px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -33,19 +27,23 @@
 }
 
 .pair lightning-combobox,
+.pair c-migrate-object-tool-pick-list,
 .pair c-combobox,
 .pair p {
   width: 40%;
 }
 
-.pair + .pair {
+.pair {
   margin-top: 15px;
 }
 
 .delete-icon {
   display: flex;
   width: 20px;
-  fill: red;
+  fill: var(
+    --slds-c-icon-color-foreground-default,
+    var(--sds-c-icon-color-foreground-default, var(--lwc-colorTextIconDefault, rgb(116, 116, 116)))
+  );
 }
 
 .drop-icon {
@@ -55,15 +53,27 @@
   cursor: move;
 }
 
+.delete-icon svg {
+  cursor: pointer;
+}
+
 .indicator-icon {
   display: flex;
   width: 20px;
   align-items: center;
 }
 
-.delete-icon svg {
-  cursor: pointer;
+/* .indicator-icon-error {
+  --sds-c-button-color-background: red;
 }
+
+.indicator-icon-warning {
+  --sds-c-button-color-background: yellow;
+}
+
+.indicator-icon-success {
+  --sds-c-button-color-background: green;
+} */
 
 hr {
   border-color: darkgray;
@@ -71,28 +81,4 @@ hr {
 
 .condition-container {
   width: 85%;
-}
-
-.drag {
-  margin-top: 15px;
-}
-
-.sticky {
-  position: fixed;
-  left: 0;
-  right: 0;
-  margin-top: -72px;
-  z-index: 5 !important;
-}
-
-.sticky + .body {
-  margin-top: 59px;
-}
-
-.steps-footer {
-  height: 350px;
-}
-
-.header-container {
-  z-index: 1;
 }

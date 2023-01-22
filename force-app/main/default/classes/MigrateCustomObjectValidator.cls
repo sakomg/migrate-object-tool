@@ -16,7 +16,7 @@ public with sharing class MigrateCustomObjectValidator {
     if (String.isBlank(query)) {
       throw new MigrateCustomObjectException(baseMessage + 'Query cannot be empty.');
     }
-    if (fieldMapping == null && fieldMapping.isEmpty()) {
+    if (fieldMapping == null || fieldMapping.isEmpty()) {
       throw new MigrateCustomObjectException(baseMessage + 'Please, complete mapping for fields.');
     }
     if (String.isBlank(recurrence)) {

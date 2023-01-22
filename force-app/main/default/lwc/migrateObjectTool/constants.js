@@ -5,10 +5,11 @@ const CREATE_NEW_BO_LINK = '/lightning/setup/BigObjects/home'
 const CREATE_NEW_SO_LINK = '/lightning/setup/ObjectManager/home'
 
 const TIME_PERIOD_TO_CLASS = {
-  Daily: 'Models.RecurrenceDataDaily',
-  Weekly: 'Models.RecurrenceDataWeekly',
-  Monthly: 'Models.RecurrenceDataMonthly',
-  Yearly: 'Models.RecurrenceDataYearly'
+  Once: 'Recurrence.RecurrenceDataOnce',
+  Daily: 'Recurrence.RecurrenceDataDaily',
+  Weekly: 'Recurrence.RecurrenceDataWeekly',
+  Monthly: 'Recurrence.RecurrenceDataMonthly',
+  Yearly: 'Recurrence.RecurrenceDataYearly'
 }
 
 const SOBJECT_NAME_OPTIONS = [
@@ -53,7 +54,9 @@ const RESPONSE_USER_QUERY = {
   success: null
 }
 
-const TRACK_DATA_CHANGE_INTERVAL = 1000 * 60
+const TRACK_DATA_CHANGE_INTERVAL = 1000 * 4
+
+const VALIDATE_RESULT = { hasError: false, items: [{ success: true, message: null }] }
 
 export default Object.assign({
   CUSTOM_OBJECT,
@@ -66,5 +69,6 @@ export default Object.assign({
   DUMMY_FIELD_PAIR,
   LOADING_OBJ,
   RESPONSE_USER_QUERY,
-  TRACK_DATA_CHANGE_INTERVAL
+  TRACK_DATA_CHANGE_INTERVAL,
+  VALIDATE_RESULT
 })

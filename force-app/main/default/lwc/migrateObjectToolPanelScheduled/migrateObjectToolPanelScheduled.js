@@ -26,7 +26,7 @@ export default class MigrateObjectToolPanelScheduled extends LightningElement {
     this.dispatchEvent(
       new CustomEvent('abortjob', {
         detail: {
-          jobId: this._item.jobId
+          cronId: this._item.cronId
         },
         bubbles: true,
         composed: true
