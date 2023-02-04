@@ -1,0 +1,68 @@
+<template>
+  <div class="container">
+    <div if:true={loadingObj.main}>
+      <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+      <img src="/img/chatter/Desert.svg" class="illustration-onloading" alt="Desert" />
+    </div>
+
+    <div if:false={loadingObj.main}>
+      <header class="header-container slds-theme_default slds-border_bottom slds-p-around_small">
+        <lightning-button-icon-stateful
+          icon-name="utility:toggle_panel_left"
+          alternative-text="Open Processes"
+          selected={openPanelLeft}
+          variant="brand"
+          onclick={handleTogglePanelLeft}
+        ></lightning-button-icon-stateful>
+        <div class="slds-float_right">
+          <lightning-button variant="brand-outline" label="Summary" title="Summary" onclick={handleSummary}></lightning-button>
+          <lightning-button
+            variant="brand"
+            label="Execute"
+            title="Execute"
+            onclick={handleExecute}
+            class="slds-m-left_small"
+          ></lightning-button>
+        </div>
+      </header>
+      <div class="slds-grid body">
+        <template if:true={openPanelLeft}>
+          <div class="slds-is-relative">
+            <c-migrate-object-tool-panel
+              main-data={data}
+              s-object-name={currentSObjectName}
+              big-object-name={currentBigObjectName}
+              oninprogress={handleJobInProgress}
+              onabortjob={handleAbortScheduledJob}
+              onselect={handleSelectProcess}
+              ontogglepanel={handleTogglePanelLeft}
+            ></c-migrate-object-tool-panel>
+            <template if:true={loadingObj.panel}>
+              <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+            </template>
+          </div>
+        </template>
+        <div class="slds-col slds-p-around_medium">
+          <c-migrate-object-tool-main
+            current-s-object-name={currentSObjectName}
+            current-big-object-name={currentBigObjectName}
+            s-object-name-options={sObjectNameOptions}
+            big-object-name-options={bigObjectNameOptions}
+            loading-obj={loadingObj}
+            field-pairs={fieldPairs}
+            so-field-options={soFieldOptions}
+            bo-field-options={boFieldOptions}
+            response-user-query={responseUserQuery}
+            request-user-query={userQuery}
+            onquery={handleInputUserQuery}
+            onsobjectchange={handleSObjectChange}
+            onbigobjectchange={handleBigObjectChange}
+            onfieldchange={handleObjectFieldChange}
+            ondeleteicon={handleDeleteIconClick}
+            oninputquery={handleInputUserQuery}
+          ></c-migrate-object-tool-main>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

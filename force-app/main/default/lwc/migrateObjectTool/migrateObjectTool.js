@@ -9,6 +9,9 @@ import Confirm from 'lightning/confirm'
 import getFieldsByObjectName from '@salesforce/apex/MigrateCustomObjectController.getFieldsByObjectName'
 import processMigrate from '@salesforce/apex/MigrateCustomObjectController.processMigrate'
 
+import DesktopView from './migrateObjectToolDesktop.html'
+import MobileView from './migrateObjectToolMobile.html'
+
 export default class MigrateObjectTool extends LightningElement {
   @track dummyFieldPair = { ...constants.DUMMY_FIELD_PAIR }
   @track loadingObj = { ...constants.LOADING_OBJ }
@@ -34,6 +37,10 @@ export default class MigrateObjectTool extends LightningElement {
 
   get dataTrackedToUpdateProperties() {
     return this.data.map(({ batchId, cronId, state }) => ({ batchId, cronId, state }))
+  }
+
+  render() {
+    return constants.FORM_FACTOR === 'Large' ? DesktopView : MobileView
   }
 
   connectedCallback() {
@@ -142,6 +149,7 @@ export default class MigrateObjectTool extends LightningElement {
     event.preventDefault()
     const { newValue, pairIndex, property } = event.detail
 
+    console.log(JSON.parse(JSON.stringify(this.fieldPairs)))
     this.fieldPairs[pairIndex][property] = newValue
     const pair = this.fieldPairs[pairIndex]
 
@@ -211,6 +219,7 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   async handleSelectProcess(event) {
+    event.stopPropagation()
     const sectionName = event.detail.name
     if (sectionName === 'new_create') {
       this.setBlankValues()
@@ -237,11 +246,11 @@ export default class MigrateObjectTool extends LightningElement {
     if (!fieldMapping.length) {
       return []
     }
-    const result = []
+    const result = [{ ...this.dummyFieldPair }]
     const objectArray = Object.entries(JSON.parse(fieldMapping))
     objectArray.forEach(([key, value], index) => {
       result.push({
-        index: index,
+        index: index + 1,
         soField: key,
         boField: value,
         toShowDeleteButton: true,
@@ -251,12 +260,14 @@ export default class MigrateObjectTool extends LightningElement {
         boFieldType: this.boFieldOptions.find((option) => option.value === value)?.type
       })
     })
-    result.push({ ...this.dummyFieldPair })
+    result.sort((prev, cur) => (prev.index < cur.index ? 1 : prev.index > cur.index ? -1 : 0))
     return result
   }
 
   processFieldsChange(fieldMapping) {
+    console.log(fieldMapping)
     this.fieldPairs = this.formFieldPairs(fieldMapping)
+    console.log(this.formFieldPairs(fieldMapping))
   }
 
   setBlankValues() {
@@ -279,6 +290,7 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   async handleAbortScheduledJob(event) {
+    event.stopPropagation()
     const cronId = event.detail.cronId
     await this._abortJob(cronId)
     await this._getData()
@@ -350,6 +362,7 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   handleInputUserQuery(event) {
+    event.stopPropagation()
     clearTimeout(this.queryTimeoutId)
     // eslint-disable-next-line @lwc/lwc/no-async-operation
     this.queryTimeoutId = setTimeout(() => this.checkQuery(event.detail.value), 1500)

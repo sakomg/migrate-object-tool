@@ -1,3 +1,5 @@
+import FORM_FACTOR from '@salesforce/client/formFactor'
+
 const CUSTOM_OBJECT = 'custom_object'
 const BIG_OBJECT = 'big_object'
 
@@ -56,7 +58,10 @@ const RESPONSE_USER_QUERY = {
 
 const TRACK_DATA_CHANGE_INTERVAL = 1000 * 4
 
-const VALIDATE_RESULT = { hasError: false, items: [{ success: true, message: null }] }
+const VALIDATE_RESULT = {
+  hasError: false,
+  items: [{ success: true, message: null }]
+}
 
 export default Object.assign({
   CUSTOM_OBJECT,
@@ -70,5 +75,6 @@ export default Object.assign({
   LOADING_OBJ,
   RESPONSE_USER_QUERY,
   TRACK_DATA_CHANGE_INTERVAL,
-  VALIDATE_RESULT
+  VALIDATE_RESULT,
+  FORM_FACTOR
 })
