@@ -93,9 +93,8 @@ export default class MigrateObjectTool extends LightningElement {
     if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime()
     if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) return a === b
     if (a.prototype !== b.prototype) return false
-    const keys = Object.keys(a)
-    if (keys.length !== Object.keys(b).length) return false
-    return keys.every((k) => this.equalsCheck(a[k], b[k]))
+    if (Object.keys(a).length !== Object.keys(b).length) return false
+    return Object.keys(a).every((k) => this.equalsCheck(a[k], b[k]))
   }
 
   setStickyHeader() {
@@ -109,13 +108,14 @@ export default class MigrateObjectTool extends LightningElement {
     }
   }
 
-  async handleSObjectChange(event) {
+  handleSObjectChange(event) {
     const newValue = event.detail.value
     if (newValue === constants.CUSTOM_OBJECT) {
       window.open(constants.CREATE_NEW_SO_LINK, '_self')
     } else {
-      await this.processSObjectChange(newValue)
-      await this.processQueryChange()
+      this.currentSObjectName = newValue
+      this.processSObjectChange(newValue)
+      this.processQueryChange()
     }
   }
 
@@ -130,7 +130,6 @@ export default class MigrateObjectTool extends LightningElement {
 
   async processSObjectChange(newValue) {
     this.loadingObj.step2 = true
-    this.currentSObjectName = newValue
     const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.soFieldOptions = this.formatPickListOption(JSON.parse(soFieldOptions))
     this.loadingObj.step2 = false

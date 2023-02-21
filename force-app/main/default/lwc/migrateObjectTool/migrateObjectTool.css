@@ -1,0 +1,98 @@
+.container {
+  min-height: 100%;
+  background-color: #fafaf9;
+}
+
+.panel-custom {
+  height: inherit;
+  min-height: calc(100vh - 170px);
+}
+
+@media (max-width: 980px) {
+  .panel-custom {
+    min-height: calc(100vh - 220px);
+  }
+}
+
+.illustration-onloading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pair-container {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pair {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pair lightning-combobox,
+.pair c-combobox,
+.pair p {
+  width: 40%;
+}
+
+.pair + .pair {
+  margin-top: 15px;
+}
+
+.delete-icon {
+  display: flex;
+  width: 20px;
+  fill: red;
+}
+
+.drop-icon {
+  display: flex;
+  width: 20px;
+  align-items: center;
+  cursor: move;
+}
+
+.indicator-icon {
+  display: flex;
+  width: 20px;
+  align-items: center;
+}
+
+.delete-icon svg {
+  cursor: pointer;
+}
+
+hr {
+  border-color: darkgray;
+}
+
+.condition-container {
+  width: 85%;
+}
+
+.drag {
+  margin-top: 15px;
+}
+
+.sticky {
+  position: fixed;
+  left: 0;
+  right: 0;
+  margin-top: -72px;
+  z-index: 5 !important;
+}
+
+.sticky + .body {
+  margin-top: 59px;
+}
+
+.steps-footer {
+  height: 350px;
+}
+
+.header-container {
+  z-index: 1;
+}

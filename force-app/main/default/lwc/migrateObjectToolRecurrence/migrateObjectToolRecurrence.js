@@ -80,7 +80,7 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     if (this.selectedPeriod === 'Once') {
       this.disabledMigrateTime = true
       this.migrateTime = ''
-      this.onceMessage = 'Will be used current time.'
+      this.onceMessage = 'Start processing after "Execute" click.'
     } else {
       this.disabledMigrateTime = false
       this.migrateTime = this.selectedMigrateTime
