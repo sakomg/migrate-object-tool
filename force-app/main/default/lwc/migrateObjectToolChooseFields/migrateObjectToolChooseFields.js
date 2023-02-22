@@ -3,9 +3,27 @@ import { Drag } from './utils'
 
 export default class MigrateObjectToolChooseFields extends LightningElement {
   @api loading
-  @api soFieldOptions
-  @api boFieldOptions
   _fieldPairs
+  _soFieldOptions
+  _boFieldOptions
+
+  get soFieldOptions() {
+    return this._soFieldOptions
+  }
+
+  @api
+  set soFieldOptions(value) {
+    this._soFieldOptions = [...value]
+  }
+
+  get boFieldOptions() {
+    return this._boFieldOptions
+  }
+
+  @api
+  set boFieldOptions(value) {
+    this._boFieldOptions = [...value]
+  }
 
   get fieldPairs() {
     return this._fieldPairs
