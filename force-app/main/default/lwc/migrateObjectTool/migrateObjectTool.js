@@ -130,6 +130,7 @@ export default class MigrateObjectTool extends LightningElement {
 
   async processSObjectChange(newValue) {
     this.loadingObj.step2 = true
+    this.currentSObjectName = newValue
     const soFieldOptions = await getFieldsByObjectName({ objectName: newValue })
     this.soFieldOptions = this.formatPickListOption(JSON.parse(soFieldOptions))
     this.loadingObj.step2 = false
@@ -239,17 +240,14 @@ export default class MigrateObjectTool extends LightningElement {
   }
 
   formFieldPairs(fieldMapping) {
-    if (!fieldMapping) {
+    if (!fieldMapping || !fieldMapping.length) {
       return []
     }
-    if (!fieldMapping.length) {
-      return []
-    }
-    const result = [{ ...this.dummyFieldPair }]
+    const result = []
     const objectArray = Object.entries(JSON.parse(fieldMapping))
     objectArray.forEach(([key, value], index) => {
       result.push({
-        index: index + 1,
+        index: index,
         soField: key,
         boField: value,
         toShowDeleteButton: true,
@@ -259,12 +257,14 @@ export default class MigrateObjectTool extends LightningElement {
         boFieldType: this.boFieldOptions.find((option) => option.value === value)?.type
       })
     })
-    result.sort((prev, cur) => (prev.index < cur.index ? 1 : prev.index > cur.index ? -1 : 0))
+    const _dummyFieldPair = { ...this.dummyFieldPair }
+    _dummyFieldPair.index = result.length
+    result.push(_dummyFieldPair)
     return result
   }
 
   processFieldsChange(fieldMapping) {
-    console.log(fieldMapping)
+    console.log('fieldMapping: ', fieldMapping)
     this.fieldPairs = this.formFieldPairs(fieldMapping)
     console.log(this.formFieldPairs(fieldMapping))
   }
