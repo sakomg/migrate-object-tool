@@ -1,9 +1,9 @@
-import { LightningElement, api } from 'lwc'
+import { LightningElement, api, track } from 'lwc'
 
 export default class MigrateObjectToolRecurrence extends LightningElement {
   @api loading
 
-  selectedMigrateTime = '00:00:00.000Z'
+  @track selectedMigrateTime = '00:00:00.000Z'
   selectedPeriod = 'Daily'
   selectedWeekDays = ['1', '2', '3', '4', '5', '6', '7']
   savedSelectedWeekDays = []
@@ -15,7 +15,8 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
   toSaveSelectedWeekDays = false
   disabledWeekDays = true
   disabledMigrateTime = false
-  onceMessage = ''
+
+  timerId = null
 
   get periodOptions() {
     return [
@@ -79,12 +80,14 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
 
     if (this.selectedPeriod === 'Once') {
       this.disabledMigrateTime = true
-      this.migrateTime = ''
-      this.onceMessage = 'Start processing after "Execute" click.'
+      this.selectedMigrateTime = this.getCurrentTime()
+      // eslint-disable-next-line @lwc/lwc/no-async-operation
+      this.timerId = setInterval(() => {
+        this.selectedMigrateTime = this.getCurrentTime()
+      }, 60000)
     } else {
+      clearInterval(this.timerId)
       this.disabledMigrateTime = false
-      this.migrateTime = this.selectedMigrateTime
-      this.onceMessage = ''
     }
 
     if (this.selectedPeriod === 'Daily') {
@@ -197,5 +200,13 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
       selectedDaysNumber = selectedDaysNumber.concat(element.selectedDaysNumber)
     })
     return selectedDaysNumber
+  }
+
+  getCurrentTime() {
+    const current = new Date()
+    const hours = current.getHours()
+    const minutes = current.getMinutes()
+    const seconds = current.getSeconds() < 10 ? '0' : '' + current.getSeconds()
+    return `${hours}:${minutes}:${seconds}.000Z`
   }
 }
