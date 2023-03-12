@@ -33,4 +33,8 @@ TODO
   Scheduling. TODO: add description
   ```
 
+## Component Structure
+
+<img src="./img/solumate_tree_ui.drawio.svg">
+
 ---
