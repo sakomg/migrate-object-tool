@@ -1,8 +1,3 @@
 # Migrate Object Tool
 
-## TODO
-
-- Add Docs
-- Create UI
-- Add Test
-- Improve existing logic
+Documentation: https://sakomg.github.io/migrate-object-tool/

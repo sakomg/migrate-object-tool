@@ -1,60 +1,64 @@
 <template>
-  <div class="slds-clearfix">
-    <template if:true={loading}>
-      <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
-    </template>
-    <div class="slds-float_left">
-      <div>
-        <b>State:&nbsp;</b>
-        <lightning-formatted-text value={item.state}></lightning-formatted-text>
+  <div class="slds-clearfix wrapper">
+    <div class="card-container">
+      <template if:true={loading}>
+        <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
+      </template>
+      <div class="slds-float_left">
+        <div>
+          <b>State:&nbsp;</b>
+          <lightning-formatted-text value={item.state}></lightning-formatted-text>
+        </div>
+        <div>
+          <b>Times Triggered:&nbsp;</b>
+          <lightning-formatted-number value={item.timesTriggered}></lightning-formatted-number>
+        </div>
+        <div>
+          <b>Start Time:&nbsp;</b>
+          <lightning-formatted-date-time
+            value={item.startTime}
+            year="numeric"
+            day="2-digit"
+            month="long"
+            hour="2-digit"
+            minute="2-digit"
+          ></lightning-formatted-date-time>
+        </div>
+        <div>
+          <b>Previous Fire Time:&nbsp;</b>
+          <lightning-formatted-date-time
+            value={item.prevFireTime}
+            year="numeric"
+            day="2-digit"
+            month="long"
+            hour="2-digit"
+            minute="2-digit"
+          ></lightning-formatted-date-time>
+        </div>
+        <div>
+          <b>Next Fire Time:&nbsp;</b>
+          <lightning-formatted-date-time
+            value={item.nextFireTime}
+            year="numeric"
+            day="2-digit"
+            month="long"
+            hour="2-digit"
+            minute="2-digit"
+          ></lightning-formatted-date-time>
+        </div>
       </div>
-      <div>
-        <b>Times Triggered:&nbsp;</b>
-        <lightning-formatted-number value={item.timesTriggered}></lightning-formatted-number>
+      <div class="go-corner">
+        <div class="go-arrow">
+          <lightning-button-icon
+            class="abort-button"
+            icon-name="action:delete"
+            title="Abort Job"
+            variant="brand"
+            size="large"
+            onclick={handleAbortScheduledJob}
+          ></lightning-button-icon>
+        </div>
       </div>
-      <div>
-        <b>Start Time:&nbsp;</b>
-        <lightning-formatted-date-time
-          value={item.startTime}
-          year="numeric"
-          day="2-digit"
-          month="long"
-          hour="2-digit"
-          minute="2-digit"
-        ></lightning-formatted-date-time>
-      </div>
-      <div>
-        <b>Previous Fire Time:&nbsp;</b>
-        <lightning-formatted-date-time
-          value={item.prevFireTime}
-          year="numeric"
-          day="2-digit"
-          month="long"
-          hour="2-digit"
-          minute="2-digit"
-        ></lightning-formatted-date-time>
-      </div>
-      <div>
-        <b>Next Fire Time:&nbsp;</b>
-        <lightning-formatted-date-time
-          value={item.nextFireTime}
-          year="numeric"
-          day="2-digit"
-          month="long"
-          hour="2-digit"
-          minute="2-digit"
-        ></lightning-formatted-date-time>
-      </div>
-    </div>
-    <div class="slds-float_right">
-      <lightning-button-icon
-        icon-name="action:delete"
-        title="Abort Job"
-        variant="bare"
-        size="small"
-        onclick={handleAbortScheduledJob}
-      ></lightning-button-icon>
-      <!-- bare, container, brand, border, border-filled, bare-inverse, and border-inverse -->
     </div>
   </div>
 </template>
