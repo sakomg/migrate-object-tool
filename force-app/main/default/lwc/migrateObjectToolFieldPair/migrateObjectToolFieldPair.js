@@ -12,6 +12,10 @@ const ACCEPTABLE_TYPES = {
   REFERENCE: ['STRING']
 }
 
+const SUCCESS_TYPES = {
+  ID: ['STRING']
+}
+
 export default class MigrateObjectToolFieldPair extends LightningElement {
   @api pair = {}
 
@@ -56,7 +60,7 @@ export default class MigrateObjectToolFieldPair extends LightningElement {
       return result
     }
 
-    if (this.pair.soFieldType === this.pair.boFieldType) {
+    if (this.hasSuccessType(this.pair.soFieldType, this.pair.boFieldType)) {
       result.content = 'Success'
       result.icon = 'utility:success'
       result.variant = ''
@@ -78,6 +82,13 @@ export default class MigrateObjectToolFieldPair extends LightningElement {
 
   hasAcceptableType(soFieldType, boFieldType) {
     return ACCEPTABLE_TYPES[soFieldType] && ACCEPTABLE_TYPES[soFieldType].includes(boFieldType)
+  }
+
+  hasSuccessType(soFieldType, boFieldType) {
+    if (soFieldType === boFieldType) {
+      return true
+    }
+    return SUCCESS_TYPES[soFieldType] && SUCCESS_TYPES[soFieldType].includes(boFieldType)
   }
 
   handleObjectFieldChange(event) {

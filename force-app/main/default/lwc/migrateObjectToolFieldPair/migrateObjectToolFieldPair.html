@@ -1,8 +1,13 @@
 <template>
   <div class="pair">
-    <div class="drop-icon">
-      <template if:true={pair.toShowDropButton}>
-        <lightning-icon icon-name="utility:rows" size="small"></lightning-icon>
+    <div class="indicator-icon">
+      <template if:true={pair.toShowValidIndicator}>
+        <lightning-helptext
+          icon-name={indicator.icon}
+          content={indicator.content}
+          icon-variant={indicator.variant}
+          class={indicator.class}
+        ></lightning-helptext>
       </template>
     </div>
     <c-combobox
@@ -55,17 +60,6 @@
           />
         </g>
       </svg>
-    </div>
-
-    <div class="indicator-icon">
-      <template if:true={pair.toShowValidIndicator}>
-        <lightning-helptext
-          icon-name={indicator.icon}
-          content={indicator.content}
-          icon-variant={indicator.variant}
-          class={indicator.class}
-        ></lightning-helptext>
-      </template>
     </div>
   </div>
 </template>

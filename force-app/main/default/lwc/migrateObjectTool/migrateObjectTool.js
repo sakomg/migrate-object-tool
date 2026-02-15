@@ -281,7 +281,7 @@ export default class MigrateObjectTool extends LightningElement {
     this.responseUserQuery = { ...constants.RESPONSE_USER_QUERY }
     if (this.mainComponent) {
       this.mainComponent.setRecurrenceSetupData({
-        period: 'Weekly',
+        period: 'Once',
         migrateTime: '00:00:00.000Z',
         recurrenceDetails: null
       })
@@ -365,6 +365,15 @@ export default class MigrateObjectTool extends LightningElement {
     clearTimeout(this.queryTimeoutId)
     // eslint-disable-next-line @lwc/lwc/no-async-operation
     this.queryTimeoutId = setTimeout(() => this.checkQuery(event.detail.value), 1500)
+  }
+
+  handleDragEnd(event) {
+    event.stopPropagation()
+    event.preventDefault()
+
+    console.log('Tool :: dragEndHandle')
+    // const { currentIndex, newIndex } = event.detail
+    // console.log({ currentIndex, newIndex })
   }
 
   async processQueryChange(query = `SELECT COUNT() FROM ${this.currentSObjectName}`) {

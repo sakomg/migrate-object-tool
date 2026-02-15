@@ -14,5 +14,7 @@
   "arrowParens": "always",
   "tabWidth": 2,
   "printWidth": 130,
-  "semi": false
+  "semi": false,
+  "insertFinalNewLine": false,
+  "proseWrap": "never"
 }

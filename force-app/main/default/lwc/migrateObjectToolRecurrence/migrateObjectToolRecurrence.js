@@ -1,10 +1,20 @@
-import { LightningElement, api, track } from 'lwc'
+import { LightningElement, api } from 'lwc'
 
 export default class MigrateObjectToolRecurrence extends LightningElement {
-  @api loading
+  _loading
 
-  @track selectedMigrateTime = '00:00:00.000Z'
-  selectedPeriod = 'Daily'
+  @api
+  set loading(value) {
+    this._daysNumberOptions = this.getNonSelectedDaysNumberOptions()
+    this._loading = value
+  }
+
+  get loading() {
+    return this._loading
+  }
+
+  selectedMigrateTime = this.getCurrentTime()
+  selectedPeriod = 'Once'
   selectedWeekDays = ['1', '2', '3', '4', '5', '6', '7']
   savedSelectedWeekDays = []
   selectedDaysNumber = []
@@ -14,7 +24,7 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
 
   toSaveSelectedWeekDays = false
   disabledWeekDays = true
-  disabledMigrateTime = false
+  disabledMigrateTime = true
 
   timerId = null
 
@@ -54,10 +64,6 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
 
   get isYearlyPeriod() {
     return this.selectedPeriod === 'Yearly'
-  }
-
-  connectedCallback() {
-    this._daysNumberOptions = this.getNonSelectedDaysNumberOptions()
   }
 
   getNonSelectedDaysNumberOptions() {
@@ -202,11 +208,21 @@ export default class MigrateObjectToolRecurrence extends LightningElement {
     return selectedDaysNumber
   }
 
+  formatAMPM(date) {
+    var hours = date.getHours()
+    var minutes = date.getMinutes()
+    var ampm = hours >= 12 ? 'PM' : 'AM'
+    hours = hours % 12
+    hours = hours ? hours : 12
+    minutes = minutes < 10 ? '0' + minutes : minutes
+    let strTime = hours + ':' + minutes + ' ' + ampm
+    return strTime
+  }
+
   getCurrentTime() {
     const current = new Date()
     const hours = current.getHours()
     const minutes = current.getMinutes()
-    const seconds = current.getSeconds() < 10 ? '0' : '' + current.getSeconds()
-    return `${hours}:${minutes}:${seconds}.000Z`
+    return `${hours}:${minutes}:00.000Z`
   }
 }

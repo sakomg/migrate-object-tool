@@ -3,22 +3,21 @@
     <lightning-spinner alternative-text="Loading..." size="small"></lightning-spinner>
   </div>
   <div>
-    <i>Migration Recurrence.</i>
+    <i>Migration Recurrence. Choose how often you need to run the migration process.</i>
   </div>
-  <div class="slds-box slds-p-around_small slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
+  <div class="slds-p-around_small slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none">
     <lightning-layout multiple-rows="true">
       <lightning-layout-item padding="around-small" size="12">
         <div class="page-section page-header slds-border_bottom">
-          <div class="slds-grid slds-grid_align-spread slds-p-bottom_small">
+          <div class="slds-grid slds-grid_align-spread slds-p-bottom_large">
             <div class="">
               <p>Migrate time:</p>
               <lightning-input
-                field-level-help="Migration start time"
+                field-level-help="Select the time at which the migration process will start"
                 type="time"
                 name="startTime"
                 label="Start"
                 disabled={disabledMigrateTime}
-                required
                 value={selectedMigrateTime}
                 onchange={handleMigrateTimeChange}
               ></lightning-input>

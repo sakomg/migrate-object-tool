@@ -40,4 +40,18 @@ export default class MigrateObjectToolMain extends LightningElement {
   fireEvent(eventName, event) {
     this.dispatchEvent(new CustomEvent(eventName, event))
   }
+
+  handleDragEnd(event) {
+    event.stopPropagation()
+    event.preventDefault()
+    console.log('Main :: handleDragEnd')
+
+    this.dispatchEvent(
+      new CustomEvent('dragfieldpair', {
+        detail: { currentIndex: 0, newIndex: 1 }
+      })
+    )
+
+    console.log('Main :: handleDragEnd : after')
+  }
 }

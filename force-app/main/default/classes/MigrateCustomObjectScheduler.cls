@@ -2,6 +2,16 @@ public with sharing class MigrateCustomObjectScheduler implements Schedulable {
   private MigrateCustomObjectService service;
   private Integer chunkSize;
 
+  public MigrateCustomObjectScheduler() {
+    this.service = new MigrateCustomObjectService(
+      'Account',
+      'Account__b',
+      'SELECT Id, Name FROM Account',
+      new Map<String, String>{ 'Name' => 'Name__c' }
+    );
+    this.chunkSize = 10;
+  }
+
   public MigrateCustomObjectScheduler(MigrateCustomObjectService service, Integer chunkSize) {
     this.service = service;
     this.chunkSize = chunkSize;

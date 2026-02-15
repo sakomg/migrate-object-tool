@@ -24,7 +24,7 @@ export default class MigrateObjectToolValidator {
       this.result.hasError = true
       this.result.items.push({
         success: false,
-        message: 'Choose sObject.'
+        message: 'Step 1. Choose sObject.'
       })
     }
 
@@ -32,7 +32,7 @@ export default class MigrateObjectToolValidator {
       this.result.hasError = true
       this.result.items.push({
         success: false,
-        message: 'Choose Big Object.'
+        message: 'Step 1. Choose Big Object.'
       })
     }
   }
@@ -42,7 +42,7 @@ export default class MigrateObjectToolValidator {
       this.result.hasError = true
       this.result.items.push({
         success: false,
-        message: 'Fields to transfer data cannot be empty.'
+        message: 'Step 2. Fields to migrate data cannot be empty.'
       })
     }
 
@@ -72,7 +72,7 @@ export default class MigrateObjectToolValidator {
       this.result.hasError = true
       this.result.items.push({
         success: false,
-        message: 'Recurrence data cannot be empty.'
+        message: 'Step 4. Recurrence data cannot be empty.'
       })
     }
   }

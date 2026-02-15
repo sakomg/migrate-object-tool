@@ -63,7 +63,7 @@ const VALIDATE_RESULT = {
   items: [{ success: true, message: null }]
 }
 
-export default Object.assign({
+export default Object.freeze({
   CUSTOM_OBJECT,
   BIG_OBJECT,
   CREATE_NEW_BO_LINK,

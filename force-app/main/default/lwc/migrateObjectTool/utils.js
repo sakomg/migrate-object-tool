@@ -7,3 +7,10 @@ export function equalsCheck(a, b) {
   if (keys.length !== Object.keys(b).length) return false
   return keys.every((k) => this.equalsCheck(a[k], b[k]))
 }
+
+export function getCurrentTime() {
+  const current = new Date()
+  const hours = current.getHours()
+  const minutes = current.getMinutes()
+  return `${hours}:${minutes}:00.000Z`
+}

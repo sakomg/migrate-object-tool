@@ -21,10 +21,9 @@ export default class MigrateObjectToolPanel extends LightningElement {
   }
 
   get draftItems() {
-    const labelDraft = this.sObjectName || this.bigObjectName ? `${this.sObjectName} -> ${this.bigObjectName}` : ''
     return [
       {
-        label: labelDraft || 'None',
+        label: 'None',
         name: 'new_create',
         icon: 'standard:bundle_config'
       }
@@ -35,8 +34,6 @@ export default class MigrateObjectToolPanel extends LightningElement {
     const result = []
     const jobs = [...this._jobs]
     const items = this.buildItems(this._mainData, (item) => item.batchId !== null || PROGRESS_STATES.includes(item.state))
-    console.log(items)
-    console.log(jobs)
     jobs.forEach((job) => {
       items.forEach((item) => {
         if (item.batchId === job.batchId) {
@@ -73,7 +70,7 @@ export default class MigrateObjectToolPanel extends LightningElement {
     return data.filter(filterCallback).map((item) => {
       return {
         ...item,
-        label: `${item.sObjectName} -> ${item.bigObjectName}`,
+        label: `${item.sObjectName} - ${item.bigObjectName}`,
         name: item.cronId
       }
     })

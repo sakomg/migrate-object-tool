@@ -7,11 +7,10 @@
   </div>
   <div class="pair-container">
     <div class="pair">
-      <div class="drop-icon"></div>
+      <div class="indicator-icon"></div>
       <p class="slds-form-element__label">From Field</p>
       <p class="slds-form-element__label">To Field</p>
       <div class="delete-icon"></div>
-      <div class="indicator-icon"></div>
     </div>
 
     <template for:each={fieldPairs} for:item="pair" for:index="idx">
@@ -19,8 +18,8 @@
         draggable="true"
         class="drag"
         key={pair.index}
-        ondragstart={drag.start}
-        ondragover={drag.over}
+        ondragstart={handleDragStart}
+        ondragover={handleDragOver}
         ondragend={handleDragEnd}
         data-index={idx}
       >
