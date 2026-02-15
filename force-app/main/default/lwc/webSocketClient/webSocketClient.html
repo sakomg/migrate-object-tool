@@ -1,0 +1,12 @@
+<template>
+  <div class="container">
+    <div class="messages-container">
+      <!-- Messages will be displayed here -->
+    </div>
+
+    <form class="message-form" onsubmit={handleSend}>
+      <input class="message-input" type="text" placeholder="Type a message..." />
+      <button class="send-button" type="submit" disabled={connected}>Send</button>
+    </form>
+  </div>
+</template>
